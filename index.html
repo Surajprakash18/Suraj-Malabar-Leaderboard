@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGD Hesaraghatta | Neon Sales Dashboard v27.0</title>
+    <title>MGD Hesaraghatta | Neon Growth Dashboard v28.0</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -21,107 +21,49 @@
         }
 
         body {
-            margin: 0;
-            padding: 20px;
-            background-color: var(--bg-dark);
+            margin: 0; padding: 20px; background-color: var(--bg-dark);
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" opacity="0.2"><path d="M100 250 L100 100 L150 50 L200 100 L200 250 Z M400 250 L400 150 L450 120 L500 150 L500 250" stroke="cyan" fill="none" stroke-width="2"/></svg>');
-            background-size: cover;
-            background-attachment: fixed;
-            color: white;
-            font-family: 'Cyber', 'Segoe UI', Roboto, sans-serif;
-            overflow-x: hidden;
-            padding-bottom: 80px;
+            background-size: cover; background-attachment: fixed; color: white;
+            font-family: 'Cyber', 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; padding-bottom: 80px;
         }
 
-        h1, h2, h3 { text-transform: uppercase; letter-spacing: 2px; margin: 0; text-align: center; }
+        .main-title { font-size: 3.5rem; color: var(--neon-blue); text-shadow: 0 0 20px var(--neon-blue); text-align: center; margin-bottom: 5px; }
+        .sub-title { font-size: 1.3rem; color: var(--neon-gold); text-align: center; margin-bottom: 40px; }
+
+        .section-container { background: var(--card-bg); border: 2px solid var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); border-radius: 20px; padding: 30px; margin-bottom: 40px; }
+
+        /* --- Team Race (Top Section) --- */
+        .team-race-row { display: flex; align-items: center; margin-bottom: 25px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px; }
+        .block-name { font-size: 1.5rem; font-weight: 900; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 5px; margin-right: 10px; text-transform: uppercase; }
+        .leader-highlight { font-size: 1.2rem; padding: 3px 10px; border-radius: 5px; background: rgba(0, 210, 255, 0.2); }
         
-        .main-title {
-            font-size: 3.5rem;
-            color: var(--neon-blue);
-            text-shadow: 0 0 20px var(--neon-blue), 0 0 50px var(--neon-blue);
-            margin-bottom: 5px;
-        }
+        .race-track { height: 35px; background: rgba(0,0,0,0.5); border-radius: 18px; flex: 1; position: relative; border: 1px solid rgba(255,255,255,0.1); overflow: visible; }
+        .race-bar { height: 100%; border-radius: 18px; transition: width 1.5s ease; position: relative; display: flex; align-items: center; }
+        .race-marker { font-size: 2.2rem; position: absolute; right: -12px; }
 
-        .sub-title {
-            font-size: 1.3rem;
-            color: var(--neon-gold);
-            text-shadow: 0 0 10px var(--neon-gold);
-            margin-bottom: 40px;
-        }
+        .growth-tag { font-size: 0.9rem; font-weight: bold; margin-left: 15px; padding: 5px 10px; border-radius: 10px; background: rgba(57, 255, 20, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); }
 
-        .section-container {
-            background: var(--card-bg);
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 20px var(--neon-blue);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 40px;
-            backdrop-filter: blur(8px);
-        }
+        /* --- Staff Grid (Bottom Section) --- */
+        .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .staff-card { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; position: relative; }
+        .crown { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 2rem; filter: drop-shadow(0 0 10px gold); }
 
-        .section-header {
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px white;
-        }
-
-        /* --- Team Race --- */
-        .team-race-row {
-            display: flex; align-items: center; margin-bottom: 25px; padding: 15px;
-            background: rgba(255,255,255,0.05); border-radius: 15px; transition: 0.3s;
-        }
-        .race-track { height: 35px; background: rgba(0,0,0,0.5); border-radius: 18px; flex: 1; position: relative; border: 1px solid rgba(255,255,255,0.1); }
-        .race-bar { height: 100%; border-radius: 18px; transition: width 1.5s ease; position: relative; display: flex; align-items: center; justify-content: flex-end; }
-        .race-marker { font-size: 2.2rem; position: absolute; right: -12px; filter: drop-shadow(0 0 5px white); }
-
-        /* --- Staff Grid --- */
-        .staff-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .staff-card {
-            background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s;
-        }
-        .staff-card:hover { transform: scale(1.02); background: rgba(255,255,255,0.08); }
-        .staff-name-large { font-size: 1.4rem; font-weight: bold; margin-bottom: 5px; }
-
-        /* --- Alerts --- */
-        .critical {
-            border-color: var(--neon-red) !important;
-            box-shadow: 0 0 20px var(--neon-red) !important;
-            animation: blink 1.5s infinite;
-        }
+        /* --- Alerts & Utilities --- */
+        .critical { border-color: var(--neon-red) !important; box-shadow: 0 0 20px var(--neon-red) !important; animation: blink 1.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        .danger-icon { color: var(--neon-red); margin-right: 8px; font-weight: bold; }
-
-        /* --- Neon Ticker (ENHANCED) --- */
-        .ticker-wrap {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: #000; border-top: 3px solid var(--neon-blue);
-            color: var(--neon-blue); overflow: hidden; padding: 12px 0; z-index: 2000;
-            box-shadow: 0 -10px 30px rgba(0, 243, 255, 0.5);
-        }
-        .ticker-move {
-            display: inline-block; white-space: nowrap; padding-left: 100%;
-            animation: ticker 30s linear infinite; font-size: 1.5rem; font-weight: bold;
-            text-shadow: 0 0 10px var(--neon-blue); letter-spacing: 2px;
-        }
+        
+        .ticker-wrap { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 3px solid var(--neon-blue); color: var(--neon-blue); overflow: hidden; padding: 12px 0; box-shadow: 0 -10px 30px rgba(0, 243, 255, 0.5); }
+        .ticker-move { display: inline-block; white-space: nowrap; padding-left: 100%; animation: ticker 30s linear infinite; font-size: 1.5rem; font-weight: bold; text-shadow: 0 0 10px var(--neon-blue); }
         @keyframes ticker { from { transform: translate(0, 0); } to { transform: translate(-100%, 0); } }
 
-        /* --- Admin --- */
-        .gear { position: fixed; bottom: 85px; right: 25px; font-size: 1.8rem; opacity: 0.1; cursor: pointer; z-index: 3000; transition: 0.3s; }
-        .gear:hover { opacity: 1; transform: rotate(90deg); }
+        .gear { position: fixed; bottom: 85px; right: 25px; font-size: 1.8rem; opacity: 0.1; cursor: pointer; transition: 0.3s; }
+        .gear:hover { opacity: 1; }
         #adminModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 4000; align-items: center; justify-content: center; }
         .modal-content { background: var(--bg-dark); border: 2px solid var(--neon-gold); padding: 30px; border-radius: 20px; width: 85%; max-height: 80vh; overflow-y: auto; }
-        .input-box { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
-        input { background: #111; border: 1px solid var(--neon-blue); color: white; padding: 6px; width: 80px; text-align: center; }
+        .input-box { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        input { background: #111; border: 1px solid var(--neon-blue); color: white; width: 80px; text-align: center; }
 
-        /* --- Dynamic Colors --- */
-        .c-gold { color: var(--neon-gold); text-shadow: 0 0 5px var(--neon-gold); }
-        .c-blue { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); }
-        .c-green { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); }
-        .c-red { color: var(--neon-red); text-shadow: 0 0 5px var(--neon-red); }
+        .c-gold { color: var(--neon-gold); } .c-blue { color: var(--neon-blue); } .c-green { color: var(--neon-green); } .c-red { color: var(--neon-red); }
         .bg-gold { background: var(--neon-gold); } .bg-blue { background: var(--neon-blue); } .bg-green { background: var(--neon-green); } .bg-red { background: var(--neon-red); }
     </style>
 </head>
@@ -131,26 +73,23 @@
     <h2 class="sub-title">Managed By Suraj Prakash</h2>
 
     <div class="section-container">
-        <h3 class="section-header">TEAM ACHIEVEMENT RACE</h3>
+        <h3 style="margin-bottom:30px; text-align:center; font-size:1.8rem;">TEAM ACHIEVEMENT RACE</h3>
         <div id="teamRaceCont"></div>
     </div>
 
     <div class="section-container">
-        <h3 class="section-header">INDIVIDUAL STAFF REPORT</h3>
+        <h3 style="margin-bottom:30px; text-align:center; font-size:1.8rem;">INDIVIDUAL STAFF REPORT</h3>
         <div id="staffGridCont" class="staff-grid"></div>
     </div>
 
-    <div class="ticker-wrap">
-        <div class="ticker-move" id="liveTicker">WELCOME COMMANDER SURAJ PRAKASH! STANDINGS UPDATED: TEAM PRECIOUS LEADING AT 31%!</div>
-    </div>
+    <div class="ticker-wrap"><div class="ticker-move" id="liveTicker">WELCOME COMMANDER!</div></div>
 
     <div class="gear" onclick="openAdmin()">⚙️</div>
     <div id="adminModal">
         <div class="modal-content">
-            <h2 class="c-gold">UPDATE SALES DATA</h2>
+            <h2 class="c-gold">ADMIN OVERRIDE</h2>
             <div id="adminFields"></div>
-            <input type="text" id="in-ticker" placeholder="Update Broadcast" style="width:100%; margin:20px 0; padding:12px;">
-            <button onclick="saveData()" style="width:100%; padding:15px; background:var(--neon-green); border:none; font-weight:bold; cursor:pointer;">PUSH TO SHOWROOM SCREEN</button>
+            <button onclick="saveData()" style="width:100%; padding:15px; background:var(--neon-green); font-weight:bold; cursor:pointer; border:none; margin-top:20px;">SYNC DASHBOARD</button>
         </div>
     </div>
 
@@ -165,54 +104,35 @@
             osc.start(); osc.stop(ctx.currentTime + 0.1);
         };
 
+        // Comparison Data: 662773.jpg (Old) vs 665809.jpg (Current)
         let state = {
-            ticker: "MGD Hesaraghatta: Lakshmi leading at 111%! Team Precious at 31% Achievement! Keep Pushing!",
+            ticker: "MGD Hesaraghatta Growth Report: Team Precious up 10%! Divine up 6%!",
             teams: [
-                { id:'p', name:'(Jaffar Siddik) Team Precious', pct:31, c:'gold', i:'🏎️' },
-                { id:'d', name:'(Manu KR) Team Divine', pct:16, c:'blue', i:'🏍️' },
-                { id:'m', name:'(Niveditha S) Team Mine', pct:8, c:'green', i:'🏃' },
-                { id:'z', name:'(Boregowda) Team Zoul', pct:4, c:'red', i:'🚶', crit:true }
+                { id:'p', name:'TEAM PRECIOUS', leader:'Jaffar Siddik', pct:31, oldPct:21, c:'gold', i:'🏎️' },
+                { id:'d', name:'TEAM DIVINE', leader:'Manu KR', pct:16, oldPct:10, c:'blue', i:'🏍️' },
+                { id:'m', name:'TEAM MINE', leader:'Niveditha S', pct:8, oldPct:8, c:'green', i:'🏃' },
+                { id:'z', name:'TEAM ZOUL', leader:'Boregowda', pct:4, oldPct:4, c:'red', i:'🚶', crit:true }
             ],
             staff: [
-                { n:"LAKSHMI", t:"Precious", p:111, c:'gold', star:true },
-                { n:"RAJESH", t:"Precious", p:50, c:'gold' },
-                { n:"MEGHANA", t:"Divine", p:48, c:'blue' },
-                { n:"SANDYA", t:"Divine", p:36, c:'blue' },
-                { n:"SHAMBHAVI B N", t:"Precious", p:30, c:'gold' },
-                { n:"KALLAPPA", t:"Mine", p:23, c:'green' },
-                { n:"YASHWANTH", t:"Precious", p:22, c:'gold' },
-                { n:"SHAREEF", t:"Divine", p:17, c:'blue' },
-                { n:"SAROJA", t:"Mine", p:17, c:'green' },
-                { n:"SACHIN K", t:"Zoul", p:15, c:'red' },
-                { n:"JABBAR", t:"Zoul", p:14, c:'red' },
-                { n:"ASHIQ", t:"Mine", p:11, c:'green' },
-                { n:"CHETHAN", t:"Mine", p:10, c:'green' },
-                { n:"ZAMEER", t:"Precious", p:9, c:'gold' },
-                { n:"VINAYAK", t:"Divine", p:8, c:'blue' },
-                { n:"ANUSUYA", t:"Mine", p:4, c:'red', crit:true },
-                { n:"MADHU", t:"Mine", p:2, c:'red', crit:true },
-                { n:"ANDANI", t:"Zoul", p:1, c:'red', crit:true },
-                { n:"SHIVA KUMAR", t:"Precious", p:0, c:'red', crit:true },
-                { n:"SACHIN B", t:"Precious", p:0, c:'red', crit:true },
-                { n:"GAYATRI", t:"Precious", p:0, c:'red', crit:true },
-                { n:"KESHAV", t:"Precious", p:0, c:'red', crit:true },
-                { n:"SANJU", t:"Precious", p:0, c:'red', crit:true },
-                { n:"VIJETHA", t:"Divine", p:0, c:'red', crit:true },
-                { n:"SHYAMALA", t:"Divine", p:0, c:'red', crit:true },
-                { n:"SEEMA", t:"Divine", p:0, c:'red', crit:true },
-                { n:"SUDEEP", t:"Divine", p:0, c:'red', crit:true },
-                { n:"VINYA", t:"Divine", p:0, c:'red', crit:true },
-                { n:"MAHESH", t:"Mine", p:0, c:'red', crit:true },
-                { n:"AYAPPA", t:"Mine", p:0, c:'red', crit:true },
-                { n:"SHAMBHAVI", t:"Mine", p:0, c:'red', crit:true },
-                { n:"ASHIQ S", t:"Mine", p:0, c:'red', crit:true },
-                { n:"NAVEEN", t:"Zoul", p:0, c:'red', crit:true },
-                { n:"MUNEER", t:"Zoul", p:0, c:'red', crit:true },
-                { n:"ARUN", t:"Zoul", p:0, c:'red', crit:true },
-                { n:"THANUSH", t:"Zoul", p:0, c:'red', crit:true },
-                { n:"LOHIT", t:"Zoul", p:0, c:'red', crit:true },
-                { n:"PREETHI", t:"Zoul", p:0, c:'red', crit:true },
-                { n:"PRAVEEN", t:"Zoul", p:0, c:'red', crit:true }
+                { n:"LAKSHMI", t:"Precious", p:111, oldP:111, c:'gold', top:true },
+                { n:"RAJESH", t:"Precious", p:50, oldP:9, c:'gold' },
+                { n:"MEGHANA", t:"Divine", p:48, oldP:48, c:'blue' },
+                { n:"SANDYA", t:"Divine", p:36, oldP:12, c:'blue' },
+                { n:"SHAMBHAVI B N", t:"Precious", p:30, oldP:0, c:'gold' },
+                { n:"KALLAPPA", t:"Mine", p:23, oldP:23, c:'green' },
+                { n:"YASHWANTH", t:"Precious", p:22, oldP:22, c:'gold' },
+                { n:"SAROJA", t:"Mine", p:17, oldP:14, c:'green' },
+                { n:"SHAREEF", t:"Divine", p:17, oldP:0, c:'blue' },
+                { n:"SACHIN K", t:"Zoul", p:15, oldP:15, c:'red' },
+                { n:"JABBAR", t:"Zoul", p:14, oldP:14, c:'red' },
+                { n:"ASHIQ", t:"Mine", p:11, oldP:11, c:'green' },
+                { n:"CHETHAN", t:"Mine", p:10, oldP:10, c:'green' },
+                { n:"ZAMEER", t:"Precious", p:9, oldP:9, c:'gold' },
+                { n:"VINAYAK", t:"Divine", p:8, oldP:8, c:'blue' },
+                { n:"ANUSUYA", t:"Mine", p:4, oldP:4, c:'red', crit:true },
+                { n:"MADHU", t:"Mine", p:2, oldP:2, c:'red', crit:true },
+                { n:"ANDANI", t:"Zoul", p:1, oldP:1, c:'red', crit:true },
+                { n:"BOREGOWDA", t:"Zoul", p:4, oldP:4, c:'red', leader:true, crit:true }
             ]
         };
 
@@ -222,50 +142,50 @@
             const grid = document.getElementById('staffGridCont');
             race.innerHTML = ''; grid.innerHTML = '';
 
+            // Render Teams with Crowns and Growth
+            const topTeamPct = Math.max(...state.teams.map(t => t.pct));
             state.teams.forEach(t => {
+                const growth = t.pct - t.oldPct;
                 race.innerHTML += `
-                    <div class="team-race-row ${t.crit ? 'critical' : ''}" style="border-left: 5px solid var(--neon-${t.c})">
-                        <div style="flex:1;">
-                            <div class="c-${t.c}" style="font-weight:bold; margin-bottom:5px;">${t.crit ? '⚠️' : ''} ${t.name}</div>
+                    <div class="team-race-row ${t.crit ? 'critical' : ''}">
+                        <div style="flex:1; position:relative;">
+                            ${t.pct === topTeamPct ? '<span class="crown" style="top:-30px; left:0; transform:none;">👑</span>' : ''}
+                            <div style="margin-bottom:10px; display:flex; align-items:center;">
+                                <span class="block-name c-${t.c}">${t.name}</span>
+                                <span class="leader-highlight c-${t.c}">(${t.leader})</span>
+                                ${growth > 0 ? `<span class="growth-tag">GROWTH: +${growth}%</span>` : ''}
+                            </div>
                             <div class="race-track"><div class="race-bar bg-${t.c}" style="width:${t.pct}%"><span class="race-marker">${t.i}</span></div></div>
                         </div>
-                        <div class="c-${t.c}" style="font-size:2rem; font-weight:bold; margin-left:20px;">${t.pct}%</div>
+                        <div class="c-${t.c}" style="font-size:2.5rem; font-weight:bold; margin-left:25px;">${t.pct}%</div>
                     </div>
                 `;
             });
 
-            // Sort staff by achievement
+            // Render Staff with Crowns and Growth
             state.staff.sort((a,b) => b.p - a.p).forEach(s => {
+                const growth = s.p - s.oldP;
                 grid.innerHTML += `
-                    <div class="staff-card ${s.crit ? 'critical' : ''}" onclick="${s.star ? 'party()' : 'clickSfx()'}">
-                        <div class="staff-name-large c-${s.c}">${s.crit ? '⚠️' : ''}${s.n}</div>
-                        <div style="font-size:0.8rem; opacity:0.7;">TEAM ${s.t} | ${s.p}% ACHIEVED</div>
-                        <div class="race-track" style="height:10px; margin-top:8px;"><div class="race-bar bg-${s.c}" style="width:${Math.min(s.p, 100)}%"></div></div>
+                    <div class="staff-card ${s.crit ? 'critical' : ''}" onclick="${s.p >= 100 ? 'party()' : 'clickSfx()'}">
+                        ${s.p >= 100 ? '<span class="crown">👑</span>' : ''}
+                        <div class="staff-name-large c-${s.c}">${s.n}</div>
+                        <div style="font-size:0.8rem; opacity:0.7;">TEAM ${s.t.toUpperCase()} | ${s.p}% ACHIEVED</div>
+                        ${growth > 0 ? `<div class="c-green" style="font-size:0.7rem; font-weight:bold;">📈 GROWTH: +${growth}%</div>` : ''}
+                        <div class="race-track" style="height:12px; margin-top:10px;"><div class="race-bar bg-${s.c}" style="width:${Math.min(s.p, 100)}%"></div></div>
                     </div>
                 `;
             });
         }
 
-        function party() {
-            clickSfx();
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ffd700', '#00f3ff', '#39ff14'] });
-        }
+        function party() { clickSfx(); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }
 
         function openAdmin() {
-            if(prompt("ACCESS CODE:") === "Suraj@2026") {
-                const fields = document.getElementById('adminFields');
-                fields.innerHTML = '<h4 class="c-blue">TEAM SCORES</h4>';
-                state.teams.forEach((t, i) => { fields.innerHTML += `<div class="input-box"><label>${t.name}</label><input type="number" id="t-${i}" value="${t.pct}"></div>`; });
-                fields.innerHTML += '<h4 class="c-blue">STAFF SCORES</h4>';
-                state.staff.forEach((s, i) => { fields.innerHTML += `<div class="input-box"><label>${s.n}</label><input type="number" id="s-${i}" value="${s.p}"></div>`; });
+            if(prompt("PASSWORD:") === "Suraj@2026") {
                 document.getElementById('adminModal').style.display = 'flex';
             }
         }
 
         function saveData() {
-            state.ticker = document.getElementById('in-ticker').value || state.ticker;
-            state.teams.forEach((t, i) => { t.pct = document.getElementById(`t-${i}`).value; });
-            state.staff.forEach((s, i) => { s.p = document.getElementById(`s-${i}`).value; s.crit = s.p < 5; });
             render();
             document.getElementById('adminModal').style.display = 'none';
         }
