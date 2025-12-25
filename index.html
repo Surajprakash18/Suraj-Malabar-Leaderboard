@@ -3,262 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suraj Prakash | Neon Sales Commander v26.0</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <title>MGD Hesaraghatta | Neon Dashboard v28.0</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --neon-gold: #fcc419;
-            --neon-blue: #00d2ff;
+            --neon-gold: #ffd700;
+            --neon-blue: #00f3ff;
             --neon-green: #39ff14;
-            --neon-red: #ff003c;
-            --bg-dark: #020205;
-            --panel-bg: rgba(10, 10, 20, 0.95);
+            --neon-red: #ff073a;
+            --bg-dark: #050510;
+            --card-bg: rgba(20, 20, 30, 0.9);
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: white;
-            font-family: 'Orbitron', 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 20px;
-            overflow-x: hidden;
-            /* Karnataka Visual Silhouette */
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" opacity="0.05"><path d="M0 400 L0 300 L50 300 L50 200 L100 200 L100 100 L150 100 L150 50 L250 50 L250 100 L300 100 L300 200 L350 200 L350 300 L400 300 L400 400 Z" fill="cyan"/></svg>');
-            background-position: bottom center;
-            background-repeat: no-repeat;
-            background-size: contain;
+            margin: 0; padding: 20px; background-color: var(--bg-dark);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" opacity="0.15"><path d="M100 250 L100 100 L150 50 L200 100 L200 250 Z M400 250 L400 150 L450 120 L500 150 L500 250" stroke="cyan" fill="none" stroke-width="2"/></svg>');
+            background-size: cover; background-attachment: fixed; color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif; padding-bottom: 100px;
         }
 
-        .header-banner {
-            border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 20px var(--neon-blue);
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-            letter-spacing: 5px;
-            margin-bottom: 25px;
-            background: rgba(0, 210, 255, 0.05);
-            text-transform: uppercase;
-        }
+        .main-title { font-size: 3rem; color: var(--neon-blue); text-shadow: 0 0 20px var(--neon-blue); text-align: center; margin: 0; }
+        .sub-title { font-size: 1.2rem; color: var(--neon-gold); text-align: center; margin-bottom: 30px; letter-spacing: 2px; }
 
-        .countdown {
-            font-size: 2.5rem;
-            color: var(--neon-red);
-            text-shadow: 0 0 15px var(--neon-red);
-            text-align: center;
-            margin-bottom: 30px;
-            font-weight: 900;
-        }
+        .section { background: var(--card-bg); border: 1px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); border-radius: 15px; padding: 25px; margin-bottom: 30px; }
+        .section-header { text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 10px; }
 
-        /* Dashboard Cards */
-        .grid-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 50px;
-        }
+        /* Race Track UI */
+        .race-row { display: flex; align-items: center; margin-bottom: 20px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 10px; }
+        .track { flex: 1; height: 30px; background: #000; border-radius: 15px; position: relative; border: 1px solid #444; margin: 0 15px; }
+        .progress-bar { height: 100%; border-radius: 15px; transition: width 2s ease; display: flex; align-items: center; justify-content: flex-end; }
+        .marker { font-size: 1.8rem; position: absolute; right: -5px; }
 
-        .team-card {
-            background: var(--panel-bg);
-            border: 1px solid #333;
-            padding: 25px;
-            border-radius: 4px;
-            position: relative;
-            transition: 0.3s;
-        }
-
-        .precious-neon { border-color: var(--neon-gold); box-shadow: 0 0 15px var(--neon-gold); }
-        .divine-neon { border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
+        /* Individual Grid */
+        .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .staff-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid #333; transition: 0.3s; position: relative; }
+        .staff-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.1); }
         
-        /* Critical Alert for Zoul and Mine */
-        .critical-neon { 
-            border: 2px solid var(--neon-red); 
-            box-shadow: 0 0 25px var(--neon-red);
-            animation: danger-pulse 2s infinite; 
-        }
+        /* Critical Pulse Alert */
+        .critical { border: 2px solid var(--neon-red) !important; animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 5px var(--neon-red); } 50% { box-shadow: 0 0 20px var(--neon-red); } }
 
-        @keyframes danger-pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        /* Ticker */
+        .ticker { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 2px solid var(--neon-blue); padding: 10px 0; overflow: hidden; }
+        .ticker-text { display: inline-block; white-space: nowrap; animation: scroll 25s linear infinite; font-size: 1.2rem; font-weight: bold; color: var(--neon-blue); }
+        @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 
-        .leader-tag { font-size: 1.2rem; font-weight: 800; margin-bottom: 5px; }
-        .team-name { font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 20px; opacity: 0.7; }
-        .stat-percent { font-size: 3rem; font-weight: 900; margin: 15px 0; }
+        .gear { position: fixed; bottom: 70px; right: 20px; font-size: 1.5rem; opacity: 0.2; cursor: pointer; transition: 0.5s; }
+        .gear:hover { opacity: 1; transform: rotate(90deg); }
 
-        .progress-track { background: #111; height: 10px; border-radius: 5px; }
-        .progress-bar { height: 100%; border-radius: 5px; box-shadow: 0 0 10px inherit; }
-
-        /* Detailed Staff Tables */
-        .staff-container { margin-bottom: 40px; background: rgba(0,0,0,0.4); border: 1px solid #222; padding: 20px; }
-        .staff-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .staff-table th { text-align: left; font-size: 0.7rem; color: #777; padding: 10px; text-transform: uppercase; }
-        .staff-table td { padding: 12px 10px; border-bottom: 1px solid #111; font-size: 0.9rem; }
+        #adminModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; }
+        .modal-content { background: #111; border: 2px solid var(--neon-gold); padding: 30px; border-radius: 15px; width: 80%; max-height: 80vh; overflow-y: auto; }
         
-        .staff-id { font-weight: bold; color: var(--neon-blue); }
-        .highlight-row { background: rgba(252, 196, 25, 0.1); cursor: pointer; }
-        .highlight-row:hover { background: rgba(252, 196, 25, 0.2); }
-
-        .critical-text { color: var(--neon-red); animation: blink-text 1s infinite; font-weight: 900; }
-        @keyframes blink-text { 50% { opacity: 0; } }
-
-        .footer { text-align: center; margin-top: 60px; padding: 20px; border-top: 1px solid #222; font-size: 0.7rem; letter-spacing: 4px; opacity: 0.4; }
-
-        #adminGear { position: fixed; bottom: 20px; right: 20px; opacity: 0.1; cursor: pointer; font-size: 1.5rem; transition: 0.3s; }
-        #adminGear:hover { opacity: 1; color: var(--neon-gold); }
-
-        #adminOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; padding: 40px; box-sizing: border-box; }
-        .admin-box { background: #111; border: 1px solid var(--neon-gold); padding: 30px; max-width: 500px; margin: auto; }
+        .c-gold { color: var(--neon-gold); } .c-blue { color: var(--neon-blue); } .c-green { color: var(--neon-green); } .c-red { color: var(--neon-red); }
+        .bg-gold { background: var(--neon-gold); } .bg-blue { background: var(--neon-blue); } .bg-green { background: var(--neon-green); } .bg-red { background: var(--neon-red); }
     </style>
 </head>
 <body>
 
-    <div class="header-banner">SYSTEM MANAGED BY SURAJ PRAKASH</div>
-    <div class="countdown">DAYS LEFT : 31</div>
+    <h1 class="main-title">MGD HESARAGHATTA</h1>
+    <h2 class="sub-title">System Managed By Suraj Prakash</h2>
 
-    <div class="grid-layout" id="dashboardGrid">
-        </div>
+    <div class="section">
+        <h3 class="section-header">TEAM RACE STANDINGS</h3>
+        <div id="teamRace"></div>
+    </div>
 
-    <div id="detailedSection">
-        </div>
+    <div class="section">
+        <h3 class="section-header">DETAILED STAFF REPORT</h3>
+        <div id="staffGrid" class="staff-grid"></div>
+    </div>
 
-    <div class="footer">CREATED BY SURAJ PRAKASH | SHOWROOM v26.0</div>
+    <div class="ticker"><div class="ticker-text" id="tickBox">WELCOME COMMANDER SURAJ PRAKASH | TEAM PRECIOUS LEADING AT 31% | LAKSHMI STAR PERFORMER AT 111% | DAYS LEFT: 31</div></div>
 
-    <div id="adminGear" onclick="openAdmin()">⚙️</div>
+    <div class="footer-sign" style="text-align: center; opacity: 0.3; padding: 20px;">Created By Suraj Prakash</div>
 
-    <div id="adminOverlay">
-        <div class="admin-box">
-            <h2 style="color:var(--neon-gold)">Admin Sync</h2>
-            <p>Sync new report data to the cloud.</p>
-            <button onclick="closeAdmin()" style="background:var(--neon-red); color:white; border:none; padding:10px 20px; cursor:pointer;">Close</button>
+    <div class="gear" onclick="openAdmin()">⚙️</div>
+
+    <div id="adminModal">
+        <div class="modal-content">
+            <h2 class="c-gold">ADMIN CLOUD SYNC</h2>
+            <div id="adminForm"></div>
+            <button onclick="saveData()" style="width:100%; padding:15px; background:var(--neon-green); border:none; font-weight:bold; margin-top:20px;">PUSH TO SHOWROOM</button>
         </div>
     </div>
 
     <script>
-        const MASTER_PASS = "suraj2026";
+        const PASS = "Suraj@2026";
+        const clickSfx = () => { let a = new AudioContext(); let o = a.createOscillator(); let g = a.createGain(); o.frequency.value = 800; g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.1); o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + 0.1); };
 
-        // Technical Click Sound
-        function playTick() {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        }
-
-        const data = {
-            precious: { leader: "Jaffar Siddik", total: 31, color: "var(--neon-gold)", staff: [
-                {n: "LAKSHMI", t: 1600000, a: 1769500, p: 111},
-                {n: "SHIVA KUMAR", t: 1800000, a: 0, p: 0},
-                {n: "ZAMEER", t: 1800000, a: 170700, p: 9},
-                {n: "SHAMBHAVI B N", t: 1500000, a: 455300, p: 30},
-                {n: "RAJESH", t: 1400000, a: 700900, p: 50},
-                {n: "SACHIN B", t: 1400000, a: 0, p: 0},
-                {n: "YASHWANTH", t: 850000, a: 188400, p: 22},
-                {n: "GAYATRI", t: 200000, a: 0, p: 0},
-                {n: "KESHAV", t: 200000, a: 0, p: 0},
-                {n: "SANJU", t: 0, a: 0, p: 0}
-            ]},
-            divine: { leader: "Manu KR", total: 16, color: "var(--neon-blue)", staff: [
-                {n: "SHAREEF", t: 1600000, a: 273000, p: 17},
-                {n: "SANDYA", t: 1500000, a: 535400, p: 36},
-                {n: "MEGHANA", t: 1400000, a: 666700, p: 48},
-                {n: "VIJETHA", t: 1400000, a: 6000, p: 0},
-                {n: "VINAYAK", t: 1400000, a: 110000, p: 8},
-                {n: "SHYAMALA", t: 1400000, a: 0, p: 0},
-                {n: "SEEMA", t: 850000, a: 0, p: 0},
-                {n: "SUDEEP", t: 0, a: 0, p: "#DIV/0!"},
-                {n: "VINYA", t: 200000, a: 0, p: 0}
-            ]},
-            mine: { leader: "Niveditha S", total: 8, color: "var(--neon-green)", staff: [
-                {n: "SAROJA", t: 1600000, a: 265800, p: 17},
-                {n: "MAHESH", t: 1000000, a: 0, p: 0},
-                {n: "ASHIQ", t: 1500000, a: 167300, p: 11},
-                {n: "MADHU", t: 1400000, a: 25600, p: 2},
-                {n: "CHETHAN", t: 1400000, a: 134600, p: 10},
-                {n: "ANUSUYA", t: 1400000, a: 59200, p: 4},
-                {n: "AYAPPA", t: 850000, a: 0, p: "#N/A"},
-                {n: "KALLAPPA", t: 850000, a: 193500, p: 23},
-                {n: "SHAMBHAVI", t: 200000, a: 0, p: 0},
-                {n: "ASHIQ S", t: 200000, a: 0, p: 0}
-            ]},
-            zoul: { leader: "Boregowda", total: 4, color: "var(--neon-red)", staff: [
-                {n: "NAVEEN", t: 1600000, a: 0, p: 0},
-                {n: "MUNEER", t: 1500000, a: 0, p: 0},
-                {n: "JABBAR", t: 1400000, a: 198200, p: 14},
-                {n: "SACHIN K", t: 1400000, a: 215000, p: 15},
-                {n: "ARUN", t: 1400000, a: 0, p: 0},
-                {n: "THANUSH", t: 850000, a: 0, p: 0},
-                {n: "LOHIT", t: 1400000, a: 0, p: 0},
-                {n: "PREETHI", t: 200000, a: 0, p: 0},
-                {n: "PRAVEEN", t: 200000, a: 0, p: 0},
-                {n: "ANDANI", t: 1500000, a: 19700, p: 1}
-            ]}
+        let state = {
+            teams: [
+                { id:'p', leader:'Jaffar Siddik', name:'Precious', pct:31, c:'gold', i:'🏎️' },
+                { id:'d', leader:'Manu KR', name:'Divine', pct:16, c:'blue', i:'🏍️' },
+                { id:'m', leader:'Niveditha S', name:'Mine', pct:8, c:'green', i:'🏃' },
+                { id:'z', leader:'Boregowda', name:'Zoul', pct:4, c:'red', i:'🚶' }
+            ],
+            staff: [
+                { n:"LAKSHMI", t:"Precious", p:111, c:'gold' }, { n:"RAJESH", t:"Precious", p:50, c:'gold' },
+                { n:"MEGHANA", t:"Divine", p:48, c:'blue' }, { n:"SANDYA", t:"Divine", p:36, c:'blue' },
+                { n:"SHAMBHAVI B N", t:"Precious", p:30, c:'gold' }, { n:"KALLAPPA", t:"Mine", p:23, c:'green' },
+                { n:"YASHWANTH", t:"Precious", p:22, c:'gold' }, { n:"SAROJA", t:"Mine", p:17, c:'green' },
+                { n:"SHAREEF", t:"Divine", p:17, c:'blue' }, { n:"SACHIN K", t:"Zoul", p:15, c:'red' },
+                { n:"JABBAR", t:"Zoul", p:14, c:'red' }, { n:"ASHIQ", t:"Mine", p:11, c:'green' },
+                { n:"CHETHAN", t:"Mine", p:10, c:'green' }, { n:"ZAMEER", t:"Precious", p:9, c:'gold' },
+                { n:"VINAYAK", t:"Divine", p:8, c:'blue' }, { n:"ANUSUYA", t:"Mine", p:4, c:'red' },
+                { n:"MADHU", t:"Mine", p:2, c:'red' }, { n:"ANDANI", t:"Zoul", p:1, c:'red' },
+                { n:"SHIVA KUMAR", t:"Precious", p:0, c:'red' }, { n:"SACHIN B", t:"Precious", p:0, c:'red' },
+                { n:"GAYATRI", t:"Precious", p:0, c:'red' }, { n:"KESHAV", t:"Precious", p:0, c:'red' },
+                { n:"SANJU", t:"Precious", p:0, c:'red' }, { n:"VIJETHA", t:"Divine", p:0, c:'red' },
+                { n:"SHYAMALA", t:"Divine", p:0, c:'red' }, { n:"SEEMA", t:"Divine", p:0, c:'red' },
+                { n:"SUDEEP", t:"Divine", p:0, c:'red' }, { n:"VINYA", t:"Divine", p:0, c:'red' },
+                { n:"MAHESH", t:"Mine", p:0, c:'red' }, { n:"AYAPPA", t:"Mine", p:0, c:'red' },
+                { n:"SHAMBHAVI", t:"Mine", p:0, c:'red' }, { n:"ASHIQ S", t:"Mine", p:0, c:'red' },
+                { n:"NAVEEN", t:"Zoul", p:0, c:'red' }, { n:"MUNEER", t:"Zoul", p:0, c:'red' },
+                { n:"ARUN", t:"Zoul", p:0, c:'red' }, { n:"THANUSH", t:"Zoul", p:0, c:'red' },
+                { n:"LOHIT", t:"Zoul", p:0, c:'red' }, { n:"PREETHI", t:"Zoul", p:0, c:'red' },
+                { n:"PRAVEEN", t:"Zoul", p:0, c:'red' }
+            ]
         };
 
-        function init() {
-            const grid = document.getElementById('dashboardGrid');
-            const details = document.getElementById('detailedSection');
+        function render() {
+            const race = document.getElementById('teamRace');
+            const grid = document.getElementById('staffGrid');
+            race.innerHTML = ''; grid.innerHTML = '';
 
-            Object.keys(data).forEach(key => {
-                const team = data[key];
-                const isCritical = team.total < 10;
-                
-                // Render Summary Card
-                grid.innerHTML += `
-                    <div class="team-card ${isCritical ? 'critical-neon' : key + '-neon'}" onclick="playTick()">
-                        ${isCritical ? '<div class="critical-text">⚠️ CRITICAL</div>' : ''}
-                        <div class="leader-tag" style="color:${team.color}">(${team.leader})</div>
-                        <div class="team-name">TEAM ${key.toUpperCase()}</div>
-                        <div class="stat-percent">${team.total}%</div>
-                        <div class="progress-track">
-                            <div class="progress-bar" style="width:${team.total}%; background:${team.color}; box-shadow: 0 0 10px ${team.color}"></div>
-                        </div>
+            state.teams.forEach(t => {
+                const isCrit = t.pct < 10;
+                race.innerHTML += `<div class="race-row ${isCrit ? 'critical' : ''}">
+                    <div style="width:200px;"><b class="c-${t.c}">(${t.leader})</b><br><small>Team ${t.name}</small></div>
+                    <div class="track"><div class="progress-bar bg-${t.c}" style="width:${t.pct}%"><span class="marker">${t.i}</span></div></div>
+                    <div style="font-size:1.5rem; font-weight:bold;" class="c-${t.c}">${t.pct}%</div>
+                </div>`;
+            });
+
+            state.staff.sort((a,b)=>b.p - a.p).forEach(s => {
+                const isCrit = s.p < 5;
+                grid.innerHTML += `<div class="staff-card ${isCrit ? 'critical' : ''}" onclick="${s.p >= 100 ? 'party()' : 'clickSfx()'}">
+                    <div style="font-weight:bold; font-size:1.1rem;" class="c-${s.c}">${isCrit ? '⚠️ ' : ''}${s.n}</div>
+                    <div style="font-size:0.8rem; opacity:0.6;">Team ${s.t} | ${s.p}% Achieved</div>
+                    <div style="background:#222; height:6px; border-radius:3px; margin-top:8px;">
+                        <div class="bg-${s.c}" style="height:100%; border-radius:3px; width:${Math.min(s.p, 100)}%"></div>
                     </div>
-                `;
-
-                // Render Detailed Table
-                let rows = "";
-                team.staff.forEach(s => {
-                    const isStar = s.p >= 100;
-                    rows += `
-                        <tr class="${isStar ? 'highlight-row' : ''}" onclick="${isStar ? 'starEffect()' : 'playTick()'}">
-                            <td><span class="staff-id">${s.n}</span></td>
-                            <td>${s.t.toLocaleString()}</td>
-                            <td>${s.a.toLocaleString()}</td>
-                            <td style="color:${isStar ? 'var(--neon-gold)' : 'white'}"><strong>${s.p}%</strong></td>
-                        </tr>
-                    `;
-                });
-
-                details.innerHTML += `
-                    <div class="staff-container">
-                        <h2 style="color:${team.color}">(${team.leader}) - TEAM ${key.toUpperCase()} - ${team.total}%</h2>
-                        <table class="staff-table">
-                            <thead><tr><th>STAFF NAME</th><th>TARGET</th><th>ACHIEVED</th><th>%</th></tr></thead>
-                            <tbody>${rows}</tbody>
-                        </table>
-                    </div>
-                `;
+                </div>`;
             });
         }
 
-        function starEffect() {
-            playTick();
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#fcc419', '#00d2ff', '#39ff14'] });
-        }
+        function party() { clickSfx(); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }
 
         function openAdmin() {
-            if(prompt("Enter Admin Access:") === MASTER_PASS) {
-                document.getElementById('adminOverlay').style.display = 'block';
+            if(prompt("ACCESS CODE:") === PASS) {
+                const form = document.getElementById('adminForm');
+                form.innerHTML = '';
+                state.teams.forEach((t,i) => { form.innerHTML += `<div style="margin:10px 0;">${t.name}: <input type="number" id="team-${i}" value="${t.pct}"></div>`; });
+                document.getElementById('adminModal').style.display = 'flex';
             }
         }
-        function closeAdmin() { document.getElementById('adminOverlay').style.display = 'none'; }
 
-        window.onload = init;
+        function saveData() {
+            state.teams.forEach((t,i) => { t.pct = document.getElementById(`team-${i}`).value; });
+            render(); document.getElementById('adminModal').style.display = 'none';
+        }
+
+        window.onload = render;
     </script>
 </body>
 </html>
