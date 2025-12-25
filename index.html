@@ -3,267 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suraj Prakash | Neon Sales Commander</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <title>MGD Hesaraghatta | Neon Sales Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --neon-gold: #fcc419;
-            --neon-blue: #00d2ff;
+            --neon-gold: #ffd700;
+            --neon-blue: #00f3ff;
             --neon-green: #39ff14;
-            --neon-red: #ff003c;
-            --bg-dark: #050505;
-            --card-bg: rgba(20, 20, 20, 0.9);
+            --neon-red: #ff073a;
+            --bg-dark: #050510;
+            --card-bg: rgba(20, 20, 30, 0.8);
+        }
+
+        @font-face {
+            font-family: 'Cyber';
+            src: url('https://fonts.cdnfonts.com/s/29364/Cyberpunk.woff') format('woff');
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: white;
-            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 20px;
-            overflow-x: hidden;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" opacity="0.1"><path d="M100 250 L100 100 L150 50 L200 100 L200 250 Z M400 250 L400 150 L450 120 L500 150 L500 250" stroke="cyan" fill="none"/></svg>'); /* Abstract Landmark Silhouette */
+            background-color: var(--bg-dark);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" opacity="0.2"><path d="M100 250 L100 100 L150 50 L200 100 L200 250 Z M400 250 L400 150 L450 120 L500 150 L500 250" stroke="cyan" fill="none" stroke-width="2"/></svg>');
             background-size: cover;
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Cyber', 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
         }
 
-        /* Admin Headers */
-        .admin-banner {
-            border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 15px var(--neon-blue);
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
-            letter-spacing: 3px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            background: rgba(0, 210, 255, 0.1);
+        /* --- Typography & Headers --- */
+        h1, h2, h3 { text-transform: uppercase; letter-spacing: 2px; margin: 0; text-align: center; }
+        
+        .main-title {
+            font-size: 3rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+            margin-bottom: 10px;
         }
 
-        .days-left {
-            font-size: 2rem;
-            color: var(--neon-red);
-            text-shadow: 0 0 10px var(--neon-red);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        /* Team Cards Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        .sub-title {
+            font-size: 1.2rem;
+            color: var(--neon-gold);
+            text-shadow: 0 0 10px var(--neon-gold);
             margin-bottom: 40px;
         }
 
-        .team-card {
+        /* --- Containers --- */
+        .section-container {
             background: var(--card-bg);
-            border: 2px solid #333;
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px var(--neon-blue), inset 0 0 20px rgba(0, 243, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(5px);
+        }
+
+        .section-header {
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px white;
+        }
+
+        /* --- Team Race (Top Section) --- */
+        .team-race-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        .team-info { flex: 1; }
+        .team-name { font-size: 1.3rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .team-icon { font-size: 1.5rem; }
+
+        .race-track {
+            height: 30px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            overflow: visible;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .race-bar {
+            height: 100%;
+            border-radius: 15px;
+            position: relative;
+            transition: width 1.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .race-marker {
+            font-size: 2rem;
+            position: absolute;
+            right: -10px;
+            filter: drop-shadow(0 0 5px white);
+        }
+
+        .trend-tag {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 20px;
+            text-shadow: 0 0 5px currentColor;
+        }
+
+        .trend-up { color: var(--neon-green); border: 1px solid var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+        .trend-steady { color: #aaa; border: 1px solid #aaa; }
+
+        /* --- Staff Report (Bottom Section) --- */
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .staff-card {
+            background: rgba(255,255,255,0.03);
             padding: 20px;
             border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
             transition: 0.3s;
             position: relative;
+            overflow: hidden;
+        }
+        .staff-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.07); }
+
+        .leader-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: var(--neon-gold);
+            border: 1px solid var(--neon-gold);
+            padding: 2px 8px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px var(--neon-gold);
         }
 
-        /* Leader Highlighting */
-        .precious-border { border-color: var(--neon-gold); box-shadow: 0 0 15px var(--neon-gold); }
-        .divine-border { border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
-        .mine-border { border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
-        
-        /* Critical Blinking for Zoul/Bottom */
-        .critical-border { 
-            border-color: var(--neon-red); 
-            box-shadow: 0 0 20px var(--neon-red);
-            animation: blink 1.5s infinite; 
+        .staff-name-large { font-size: 1.4rem; font-weight: bold; margin-bottom: 5px; }
+        .staff-details { font-size: 0.9rem; opacity: 0.8; margin-bottom: 15px; display: flex; justify-content: space-between; }
+
+        /* --- Shared Styles --- */
+        .critical {
+            border-color: var(--neon-red) !important;
+            box-shadow: 0 0 20px var(--neon-red), inset 0 0 20px rgba(255, 7, 58, 0.2) !important;
+            animation: blink 1s infinite alternate;
         }
+        @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } }
 
-        @keyframes blink { 50% { opacity: 0.5; border-color: transparent; } }
+        .danger-icon { color: var(--neon-red); margin-right: 10px; text-shadow: 0 0 10px var(--neon-red); }
 
-        .leader-name { font-size: 1.5rem; font-weight: 900; margin-bottom: 5px; }
-        .team-title { font-size: 0.9rem; opacity: 0.8; margin-bottom: 15px; }
-        .percent-display { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
-
-        /* Progress Bars */
-        .bar-outer { background: #222; height: 12px; border-radius: 6px; overflow: hidden; }
-        .bar-inner { height: 100%; transition: width 2s ease-in-out; }
-
-        /* Staff Table */
-        .staff-list {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: rgba(0,0,0,0.5);
+        /* --- Admin --- */
+        .settings-icon {
+            position: fixed; bottom: 20px; right: 20px;
+            font-size: 1.5rem; opacity: 0.2; cursor: pointer; transition: 0.5s;
         }
+        .settings-icon:hover { opacity: 1; transform: rotate(90deg); }
 
-        .staff-list th, .staff-list td {
-            padding: 12px;
-            border-bottom: 1px solid #333;
-            text-align: left;
+        #adminModal {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.9); z-index: 999; align-items: center; justify-content: center;
         }
-
-        .staff-name { font-weight: bold; color: var(--neon-blue); }
-        .top-performer { background: rgba(252, 196, 25, 0.2); border: 1px solid var(--neon-gold); cursor: pointer; }
-
-        .danger-sign { color: var(--neon-red); font-weight: bold; margin-right: 5px; }
-
-        .footer-credit {
-            text-align: center;
-            margin-top: 50px;
-            opacity: 0.5;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
+        .modal-content {
+            background: var(--card-bg); border: 2px solid var(--neon-gold); box-shadow: 0 0 30px var(--neon-gold);
+            padding: 30px; border-radius: 20px; width: 80%; max-width: 600px; max-height: 80vh; overflow-y: auto;
         }
+        .input-group { margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        input { background: #111; border: 1px solid var(--neon-blue); color: white; padding: 8px; border-radius: 5px; width: 100px; }
+        .save-btn { width: 100%; padding: 15px; background: var(--neon-green); border: none; font-weight: bold; font-family: 'Cyber'; font-size: 1.2rem; cursor: pointer; box-shadow: 0 0 20px var(--neon-green); }
 
-        /* Admin Overlay */
-        #adminPanel {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #111; border: 2px solid var(--neon-gold);
-            padding: 30px; z-index: 1000; width: 80%; max-height: 80vh; overflow-y: auto;
-        }
+        /* --- Colors --- */
+        .c-gold { color: var(--neon-gold); text-shadow: 0 0 10px var(--neon-gold); }
+        .c-blue { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+        .c-green { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
+        .c-red { color: var(--neon-red); text-shadow: 0 0 10px var(--neon-red); }
+        .bg-gold { background: var(--neon-gold); box-shadow: 0 0 15px var(--neon-gold); }
+        .bg-blue { background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
+        .bg-green { background: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
+        .bg-red { background: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); }
+        .b-gold { border-color: var(--neon-gold); box-shadow: 0 0 15px var(--neon-gold); }
+        .b-blue { border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
+        .b-green { border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
+        .b-red { border-color: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); }
     </style>
 </head>
 <body>
 
-    <div class="admin-banner">SYSTEM MANAGED BY SURAJ PRAKASH</div>
-    <div class="days-left">DAYS LEFT: 31</div>
+    <h1 class="main-title">MGD HESARAGHATTA</h1>
+    <h2 class="sub-title">Managed By Suraj Prakash</h2>
 
-    <div class="dashboard-grid" id="mainDashboard">
+    <div class="section-container">
+        <h3 class="section-header">TEAM ACHIEVEMENT RACE</h3>
+        <div id="teamRaceContainer"></div>
+    </div>
+
+    <div class="section-container">
+        <h3 class="section-header">INDIVIDUAL STAFF REPORT</h3>
+        <div id="staffGridContainer" class="staff-grid"></div>
+    </div>
+
+    <div class="settings-icon" onclick="openAdmin()">⚙️</div>
+    <div id="adminModal">
+        <div class="modal-content">
+            <h2 class="c-gold" style="margin-bottom:20px;">UPDATE SCORES</h2>
+            <div id="adminInputs"></div>
+            <button class="save-btn" onclick="saveData()">SYNC DATA</button>
         </div>
-
-    <div id="staffSection">
-        </div>
-
-    <div class="footer-credit">CREATED BY SURAJ PRAKASH | v25.0 NEON COMMANDER</div>
-
-    <div id="adminPanel">
-        <h3>Admin Cloud Control</h3>
-        <div id="inputs"></div>
-        <button onclick="saveData()" style="width:100%; padding:15px; background:var(--neon-green); margin-top:10px;">SYNC TO CLOUD</button>
     </div>
 
     <script>
-        // Audio Synth for "Tech Click"
+        // --- CLICK SOUND ---
         const playClick = () => {
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, context.currentTime);
-            gain.gain.setValueAtTime(0.1, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
-            osc.connect(gain);
-            gain.connect(context.destination);
-            osc.start();
-            osc.stop(context.currentTime + 0.1);
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(1200, ctx.currentTime);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.15);
         };
 
-        const teamData = {
-            precious: { leader: "Jaffar Siddik", color: "#fcc419", players: [
-                {n: "LAKSHMI", p: 111, a: 1769500, t: 1600000},
-                {n: "RAJESH", p: 50, a: 700900, t: 1400000},
-                {n: "SHAMBHAVI B N", p: 30, a: 455300, t: 1500000},
-                {n: "YASHWANTH", p: 22, a: 188400, t: 850000},
-                {n: "ZAMEER", p: 9, a: 170700, t: 1800000},
-                {n: "SHIVA KUMAR", p: 0, a: 0, t: 1800000},
-                {n: "SACHIN B", p: 0, a: 0, t: 1400000},
-                {n: "GAYATRI", p: 0, a: 0, t: 200000},
-                {n: "KESHAV", p: 0, a: 0, t: 200000},
-                {n: "SANJU", p: 0, a: 0, t: 0}
-            ], total: 31 },
-            divine: { leader: "Manu KR", color: "#00d2ff", players: [
-                {n: "MEGHANA", p: 48, a: 666700, t: 1400000},
-                {n: "SANDYA", p: 36, a: 535400, t: 1500000},
-                {n: "SHAREEF", p: 17, a: 273000, t: 1600000},
-                {n: "VINAYAK", p: 8, a: 110000, t: 1400000},
-                {n: "VIJETHA", p: 0, a: 6000, t: 1400000},
-                {n: "SHYAMALA", p: 0, a: 0, t: 1400000},
-                {n: "SEEMA", p: 0, a: 0, t: 850000},
-                {n: "VINYA", p: 0, a: 0, t: 200000}
-            ], total: 16 },
-            mine: { leader: "Niveditha S", color: "#39ff14", players: [
-                {n: "KALLAPPA", p: 23, a: 193500, t: 850000},
-                {n: "SAROJA", p: 17, a: 265800, t: 1600000},
-                {n: "ASHIQ", p: 11, a: 167300, t: 1500000},
-                {n: "CHETHAN", p: 10, a: 134600, t: 1400000},
-                {n: "ANUSUYA", p: 4, a: 59200, t: 1400000},
-                {n: "MADHU", p: 2, a: 25600, t: 1400000},
-                {n: "MAHESH", p: 0, a: 0, t: 1000000},
-                {n: "SHAMBHAVI", p: 0, a: 0, t: 200000},
-                {n: "ASHIQ S", p: 0, a: 0, t: 200000}
-            ], total: 8 },
-            zoul: { leader: "Boregowda", color: "#ff003c", players: [
-                {n: "SACHIN K", p: 15, a: 215000, t: 1400000},
-                {n: "JABBAR", p: 14, a: 198200, t: 1400000},
-                {n: "ANDANI", p: 1, a: 19700, t: 1500000},
-                {n: "NAVEEN", p: 0, a: 0, t: 1600000},
-                {n: "MUNEER", p: 0, a: 0, t: 1500000},
-                {n: "ARUN", p: 0, a: 0, t: 1400000},
-                {n: "THANUSH", p: 0, a: 0, t: 850000},
-                {n: "LOHIT", p: 0, a: 0, t: 1400000},
-                {n: "PREETHI", p: 0, a: 0, t: 200000},
-                {n: "PRAVEEN", p: 0, a: 0, t: 200000}
-            ], total: 4 }
+        // --- DATA MODEL ---
+        let db = {
+            teams: [
+                { id: 'p', name: 'Team Precious (Jaffar)', pct: 31, trend: '+10%', icon: '🏎️', color: 'gold' },
+                { id: 'd', name: 'Team Divine (Manu)', pct: 16, trend: '+6%', icon: '🏍️', color: 'blue' },
+                { id: 'm', name: 'Team Mine (Niveditha)', pct: 8, trend: 'STEADY', icon: '🏃', color: 'green' },
+                { id: 'z', name: 'Team Zoul (Boregowda)', pct: 4, trend: 'STEADY', icon: '🚶', color: 'red', critical: true }
+            ],
+            staff: [
+                // Leaders
+                { name: 'JAFFAR SIDDIK', team: 'Precious', pct: 31, leader: true, color: 'gold' },
+                { name: 'MANU KR', team: 'Divine', pct: 16, leader: true, color: 'blue' },
+                { name: 'NIVEDITHA S', team: 'Mine', pct: 8, leader: true, color: 'green' },
+                { name: 'BOREGOWDA', team: 'Zoul', pct: 4, leader: true, color: 'red', critical: true },
+                // Precious
+                { name: 'LAKSHMI', team: 'Precious', pct: 111, color: 'gold', top: true },
+                { name: 'RAJESH', team: 'Precious', pct: 50, color: 'gold' },
+                { name: 'SHAMBHAVI B N', team: 'Precious', pct: 30, color: 'gold' },
+                { name: 'YASHWANTH', team: 'Precious', pct: 22, color: 'gold' },
+                { name: 'ZAMEER', team: 'Precious', pct: 9, color: 'gold' },
+                { name: 'SHIVA KUMAR', team: 'Precious', pct: 0, color: 'gold', critical: true },
+                { name: 'SACHIN B', team: 'Precious', pct: 0, color: 'gold', critical: true },
+                { name: 'GAYATRI', team: 'Precious', pct: 0, color: 'gold', critical: true },
+                { name: 'KESHAV', team: 'Precious', pct: 0, color: 'gold', critical: true },
+                { name: 'SANJU', team: 'Precious', pct: 0, color: 'gold', critical: true },
+                // Divine
+                { name: 'MEGHANA', team: 'Divine', pct: 48, color: 'blue' },
+                { name: 'SANDYA', team: 'Divine', pct: 36, color: 'blue' },
+                { name: 'SHAREEF', team: 'Divine', pct: 17, color: 'blue' },
+                { name: 'VINAYAK', team: 'Divine', pct: 8, color: 'blue' },
+                { name: 'VIJETHA', team: 'Divine', pct: 0, color: 'blue', critical: true },
+                { name: 'SHYAMALA', team: 'Divine', pct: 0, color: 'blue', critical: true },
+                { name: 'SEEMA', team: 'Divine', pct: 0, color: 'blue', critical: true },
+                { name: 'VINYA', team: 'Divine', pct: 0, color: 'blue', critical: true },
+                // Mine
+                { name: 'KALLAPPA', team: 'Mine', pct: 23, color: 'green' },
+                { name: 'SAROJA', team: 'Mine', pct: 17, color: 'green' },
+                { name: 'ASHIQ', team: 'Mine', pct: 11, color: 'green' },
+                { name: 'CHETHAN', team: 'Mine', pct: 10, color: 'green' },
+                { name: 'ANUSUYA', team: 'Mine', pct: 4, color: 'green', critical: true },
+                { name: 'MADHU', team: 'Mine', pct: 2, color: 'green', critical: true },
+                { name: 'MAHESH', team: 'Mine', pct: 0, color: 'green', critical: true },
+                { name: 'SHAMBHAVI', team: 'Mine', pct: 0, color: 'green', critical: true },
+                { name: 'ASHIQ S', team: 'Mine', pct: 0, color: 'green', critical: true },
+                // Zoul
+                { name: 'SACHIN K', team: 'Zoul', pct: 15, color: 'red' },
+                { name: 'JABBAR', team: 'Zoul', pct: 14, color: 'red' },
+                { name: 'ANDANI', team: 'Zoul', pct: 1, color: 'red', critical: true },
+                { name: 'NAVEEN', team: 'Zoul', pct: 0, color: 'red', critical: true },
+                { name: 'MUNEER', team: 'Zoul', pct: 0, color: 'red', critical: true },
+                { name: 'ARUN', team: 'Zoul', pct: 0, color: 'red', critical: true },
+                { name: 'THANUSH', team: 'Zoul', pct: 0, color: 'red', critical: true },
+                { name: 'LOHIT', team: 'Zoul', pct: 0, color: 'red', critical: true },
+                { name: 'PREETHI', team: 'Zoul', pct: 0, color: 'red', critical: true },
+                { name: 'PRAVEEN', team: 'Zoul', pct: 0, color: 'red', critical: true }
+            ]
         };
 
-        function render() {
-            const grid = document.getElementById('mainDashboard');
-            const lists = document.getElementById('staffSection');
-            grid.innerHTML = '';
-            lists.innerHTML = '';
+        // --- RENDER FUNCTIONS ---
+        function renderDashboard() {
+            const raceCont = document.getElementById('teamRaceContainer');
+            const staffCont = document.getElementById('staffGridContainer');
+            raceCont.innerHTML = ''; staffCont.innerHTML = '';
 
-            Object.keys(teamData).forEach(key => {
-                const team = teamData[key];
-                const isBottom = team.total < 10;
-                
-                // Dashboard Card
-                grid.innerHTML += `
-                    <div class="team-card ${key}-border ${isBottom ? 'critical-border' : ''}" onclick="playClick()">
-                        <div class="leader-name" style="color:${team.color}">(${team.leader})</div>
-                        <div class="team-title">TEAM ${key.toUpperCase()}</div>
-                        <div class="percent-display">${team.total}%</div>
-                        <div class="bar-outer">
-                            <div class="bar-inner" style="width:${team.total}%; background:${team.color}"></div>
+            // Render Teams
+            db.teams.forEach(t => {
+                const isCrit = t.critical ? 'critical' : '';
+                const trendClass = t.trend.includes('+') ? 'trend-up' : 'trend-steady';
+                raceCont.innerHTML += `
+                    <div class="team-race-row ${isCrit} b-${t.color}" onclick="playClick()">
+                        <div class="team-info">
+                            <div class="team-name c-${t.color}">
+                                ${t.critical ? '<span class="danger-icon">⚠️</span>' : ''}
+                                <span class="team-icon">${t.icon}</span> ${t.name}
+                            </div>
+                            <div class="race-track">
+                                <div class="race-bar bg-${t.color}" style="width:${t.pct}%">
+                                    <span class="race-marker">${t.icon}</span>
+                                </div>
+                            </div>
                         </div>
+                        <div class="trend-tag ${trendClass}">${t.trend}</div>
+                        <div class="c-${t.color}" style="font-size:2rem; font-weight:bold; margin-left:20px;">${t.pct}%</div>
                     </div>
                 `;
+            });
 
-                // Staff List Section
-                let rows = '';
-                team.players.forEach(p => {
-                    const isTop = p.p >= 100;
-                    const isLow = p.p < 5;
-                    rows += `
-                        <tr class="${isTop ? 'top-performer' : ''} ${isLow ? 'low-performer' : ''}" 
-                            onclick="${isTop ? 'celebrate()' : 'playClick()'}">
-                            <td>${isLow ? '<span class="danger-sign">⚠️</span>' : ''}<span class="staff-name">${p.n}</span></td>
-                            <td>${p.t.toLocaleString()}</td>
-                            <td>${p.a.toLocaleString()}</td>
-                            <td style="color:${p.p > 50 ? 'var(--neon-green)' : 'white'}"><strong>${p.p}%</strong></td>
-                        </tr>
-                    `;
-                });
-
-                lists.innerHTML += `
-                    <div style="margin-top:40px; border-left: 5px solid ${team.color}; padding-left:15px;">
-                        <h2 style="color:${team.color}">(${team.leader}) - Team ${key.toUpperCase()} - ${team.total}%</h2>
-                        <table class="staff-list">
-                            <thead><tr><th>STAFF</th><th>TARGET</th><th>ACHIEVED</th><th>%</th></tr></thead>
-                            <tbody>${rows}</tbody>
-                        </table>
+            // Render Staff
+            db.staff.forEach((s, i) => {
+                const isCrit = s.critical ? 'critical' : '';
+                const borderClass = s.leader ? `b-${s.color}` : '';
+                const clickAction = s.top ? `celebrate(${i})` : 'playClick()';
+                staffCont.innerHTML += `
+                    <div class="staff-card ${isCrit} ${borderClass}" onclick="${clickAction}" id="staff-${i}">
+                        ${s.leader ? '<div class="leader-badge">👑 TEAM LEADER</div>' : ''}
+                        <div class="staff-name-large c-${s.color}">
+                            ${s.critical ? '<span class="danger-icon">⚠️</span>' : ''}${s.name}
+                        </div>
+                        <div class="staff-details">
+                            <span>TEAM ${s.team.toUpperCase()}</span>
+                            <span class="c-${s.color}" style="font-weight:bold;">${s.pct}% ACHIEVED</span>
+                        </div>
+                        <div class="race-track" style="height:15px;">
+                            <div class="race-bar bg-${s.color}" style="width:${Math.min(s.pct, 100)}%"></div>
+                        </div>
                     </div>
                 `;
             });
         }
 
-        function celebrate() {
+        function celebrate(idx) {
             playClick();
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#fcc419', '#00d2ff', '#39ff14'] });
+            const card = document.getElementById(`staff-${idx}`);
+            const rect = card.getBoundingClientRect();
+            const x = (rect.left + rect.width / 2) / window.innerWidth;
+            const y = (rect.top + rect.height / 2) / window.innerHeight;
+            confetti({ particleCount: 150, spread: 100, origin: { x, y }, colors: ['#ffd700', '#00f3ff', '#39ff14'] });
         }
 
-        window.onload = render;
+        // --- ADMIN FUNCTIONS ---
+        function openAdmin() {
+            if(prompt("ENTER PASSWORD:") === "Suraj@2026") {
+                const inputs = document.getElementById('adminInputs');
+                inputs.innerHTML = '<h4 class="c-blue">TEAMS</h4>';
+                db.teams.forEach((t, i) => {
+                    inputs.innerHTML += `<div class="input-group"><label>${t.name}</label><input type="number" id="team-${i}" value="${t.pct}"></div>`;
+                });
+                inputs.innerHTML += '<h4 class="c-blue" style="margin-top:20px;">STAFF</h4>';
+                db.staff.forEach((s, i) => {
+                    inputs.innerHTML += `<div class="input-group"><label>${s.name}</label><input type="number" id="staff-in-${i}" value="${s.pct}"></div>`;
+                });
+                document.getElementById('adminModal').style.display = 'flex';
+            } else { alert("ACCESS DENIED"); }
+        }
+
+        function saveData() {
+            playClick();
+            db.teams.forEach((t, i) => { t.pct = document.getElementById(`team-${i}`).value; });
+            db.staff.forEach((s, i) => { 
+                s.pct = document.getElementById(`staff-in-${i}`).value;
+                s.critical = s.pct < 5 && !s.leader; // Auto-critical low performers
+            });
+            renderDashboard();
+            document.getElementById('adminModal').style.display = 'none';
+        }
+
+        // --- INIT ---
+        renderDashboard();
+        document.body.addEventListener('click', playClick, { once: true }); // Init audio context
     </script>
 </body>
 </html>
