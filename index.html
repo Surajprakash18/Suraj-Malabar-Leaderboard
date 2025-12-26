@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGD Hesaraghatta | Suraj Prakash v38.2</title>
+    <title>MGD Hesaraghatta | Suraj Prakash v38.3</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
@@ -112,9 +112,9 @@
     <div id="adminModal">
         <div class="modal-content">
             <div style="font-size: 0.55rem; color: #555; margin-bottom: 10px; text-align: right;">
-                System: PWA-CORE | Build: v38.2 | Status: <span class="c-green">ONLINE</span>
+                System: PWA-CORE | Build: v38.3 | Status: <span class="c-green">ONLINE</span>
             </div>
-            <h2 class="c-gold" style="font-size:1.1rem; margin-bottom:12px;">ADMIN CONSOLE v38.2</h2>
+            <h2 class="c-gold" style="font-size:1.1rem; margin-bottom:12px;">ADMIN CONSOLE v38.3</h2>
             <div id="adminFields"></div>
             <input type="text" id="in-ticker" placeholder="Update Broadcast" style="width:100%; margin:12px 0; padding:10px; font-size: 0.75rem;">
             <button onclick="saveData()" style="width:100%; padding:12px; background:var(--neon-green); border:none; font-weight:bold; cursor:pointer; color:black;">PUSH UPDATES</button>
@@ -245,7 +245,7 @@
             });
         }
 
-        function checkVersion() { alert("MGD Leaderboard\nVersion: 38.2\nCommander: Suraj Prakash\nStatus: Live Sync Active"); }
+        function checkVersion() { alert("MGD Leaderboard\nVersion: 38.3\nCommander: Suraj Prakash\nStatus: Live Sync Active"); }
         function party() { clickSfx(); confetti({ particleCount: 150, spread: 60, origin: { y: 0.6 } }); }
 
         function openAdmin() {
@@ -272,7 +272,14 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => { console.log('MGD App Online'); setInterval(() => { reg.update(); }, 60000); })
+                    .then(reg => { 
+                        console.log('MGD App Online'); 
+                        setInterval(() => { 
+                            reg.update(); 
+                            // Aggressive Sync to bypass Hibernation
+                            if ('sync' in reg) { reg.sync.register('mgd-heartbeat'); }
+                        }, 60000); 
+                    })
                     .catch(err => console.error('PWA Setup Error:', err));
             });
         }
