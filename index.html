@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGD Hesaraghatta | Suraj Prakash v38.4</title>
+    <title>MGD Hesaraghatta | Suraj Prakash v38.6</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
@@ -47,6 +47,11 @@
         #daysPending { font-size: 0.9rem; color: var(--neon-red); font-weight: 900; text-shadow: 0 0 10px var(--neon-red); margin-bottom: 20px; text-align: center; display: block; letter-spacing: 2px; }
         .critical-flash { animation: alert-flash 1s infinite alternate; }
         @keyframes alert-flash { from { opacity: 1; text-shadow: 0 0 15px var(--neon-red); } to { opacity: 0.3; text-shadow: 0 0 2px var(--neon-red); } }
+
+        /* Sync Indicator Styling */
+        .sync-dot { width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 8px var(--neon-green); vertical-align: middle; }
+        .pulse { animation: sync-pulse 2s infinite; }
+        @keyframes sync-pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
         .section-container { background: var(--card-bg); border: 1.2px solid var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); border-radius: 12px; padding: 15px; margin-bottom: 25px; backdrop-filter: blur(8px); }
         .section-header { font-size: 1.1rem; margin-bottom: 15px; text-shadow: 0 0 5px white; }
@@ -101,7 +106,7 @@
     </div>
 
     <div id="lastSyncStamp" style="text-align: center; color: var(--neon-blue); font-size: 0.55rem; margin-top: 15px; opacity: 0.6; letter-spacing: 1px; text-shadow: 0 0 5px var(--neon-blue);">
-        LAST REFRESH: WAITING FOR SYNC...
+        <span id="syncDot" class="sync-dot pulse"></span>LAST REFRESH: WAITING FOR SYNC...
     </div>
 
     <div class="ticker-wrap">
@@ -112,9 +117,9 @@
     <div id="adminModal">
         <div class="modal-content">
             <div style="font-size: 0.55rem; color: #555; margin-bottom: 10px; text-align: right;">
-                System: PWA-CORE | Build: v38.4 | Status: <span class="c-green">ONLINE</span>
+                System: PWA-CORE | Build: v38.6 | Status: <span class="c-green">ONLINE</span>
             </div>
-            <h2 class="c-gold" style="font-size:1.1rem; margin-bottom:12px;">ADMIN CONSOLE v38.4</h2>
+            <h2 class="c-gold" style="font-size:1.1rem; margin-bottom:12px;">ADMIN CONSOLE v38.6</h2>
             <div id="adminFields"></div>
             <input type="text" id="in-ticker" placeholder="Update Broadcast" style="width:100%; margin:12px 0; padding:10px; font-size: 0.75rem;">
             <button onclick="saveData()" style="width:100%; padding:12px; background:var(--neon-green); border:none; font-weight:bold; cursor:pointer; color:black;">PUSH UPDATES</button>
@@ -123,7 +128,7 @@
 
     <script>
         const clickSfx = () => {
-            const ctx = new AudioContext(); const osc = ctx.createOscillator(); const gain = ctx.createGain();
+            const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain();
             osc.frequency.setValueAtTime(900, ctx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.1);
             osc.connect(gain); gain.connect(ctx.destination);
@@ -131,58 +136,68 @@
         };
 
         const rankingIcons = ['🏎️', '🏍️', '🏃', '🚶'];
+        const CSV_LINK = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS6tzd7SDpOQ6zHwIGlxNBRFGEG-62iLWa2wMyGyFgjxAWQC3KxP_qBicWEWuBaMsCz1Ydeq-im64_b/pub?gid=0&single=true&output=csv";
 
         let state = {
-            ticker: "Team Precious 🏎️ leading at 44% | Team Divine 🏍️ at 23% | Team Mine 🏃 at 9% | Team Zoul 🚶 at 14% | LAKSHMI Star Performer at 111% | managed by Suraj Prakash, V37.2",
+            ticker: "SYNCING WITH LIVE ENGINE...",
             lastUpdated: "",
-            teams: [
-                { id:'p', name:'Precious', leader:'Jaffar Siddik', pct:31, c:'gold', lastPct: 21 },
-                { id:'d', name:'Divine', leader:'Manu KR', pct:16, c:'blue', lastPct: 10 },
-                { id:'m', name:'Mine', leader:'Niveditha S', pct:8, c:'green', lastPct: 8 },
-                { id:'z', name:'Zoul', leader:'Boregowda', pct:4, c:'red', lastPct: 4, crit:true }
-            ],
-            staff: [
-                { n:"LAKSHMI", t:"Precious", p:111, c:'gold', lastP: 111, lastRank: 1 },
-                { n:"RAJESH", t:"Precious", p:50, c:'gold', lastP: 9, lastRank: 15 },
-                { n:"MEGHANA", t:"Divine", p:48, c:'blue', lastP: 48, lastRank: 2 },
-                { n:"SANDYA", t:"Divine", p:36, c:'blue', lastP: 12, lastRank: 10 },
-                { n:"SHAMBHAVI B N", t:"Precious", p:30, c:'gold', lastP: 0, lastRank: 20 },
-                { n:"KALLAPPA", t:"Mine", p:23, c:'green', lastP: 23, lastRank: 3 },
-                { n:"YASHWANTH", t:"Precious", p:22, c:'gold', lastP: 22, lastRank: 4 },
-                { n:"SHAREEF", t:"Divine", p:17, c:'blue', lastP: 0, lastRank: 21 },
-                { n:"SAROJA", t:"Mine", p:17, c:'green', lastP: 14, lastRank: 9 },
-                { n:"SACHIN K", t:"Zoul", p:15, c:'red', lastP: 15, lastRank: 5 },
-                { n:"JABBAR", t:"Zoul", p:14, c:'red', lastP: 14, lastRank: 6 },
-                { n:"ASHIQ", t:"Mine", p:11, c:'green', lastP: 11, lastRank: 11 },
-                { n:"CHETHAN", t:"Mine", p:10, c:'green', lastP: 10, lastRank: 12 },
-                { n:"ZAMEER", t:"Precious", p:9, c:'gold', lastP: 9, lastRank: 13 },
-                { n:"VINAYAK", t:"Divine", p:8, c:'blue', lastP: 8, lastRank: 14 },
-                { n:"ANUSUYA", t:"Mine", p:4, c:'red', lastP: 4, lastRank: 16 },
-                { n:"MADHU", t:"Mine", p:2, c:'red', lastP: 2, lastRank: 17 },
-                { n:"ANDANI", t:"Zoul", p:1, c:'red', lastP: 1, lastRank: 18 },
-                { n:"SHIVA KUMAR", t:"Precious", p:0, c:'red', lastP: 0, lastRank: 19 },
-                { n:"SACHIN B", t:"Precious", p:0, c:'red', lastP: 0, lastRank: 20 },
-                { n:"GAYATRI", t:"Precious", p:0, c:'red', lastP: 0, lastRank: 21 },
-                { n:"KESHAV", t:"Precious", p:0, c:'red', lastP: 0, lastRank: 22 },
-                { n:"SANJU", t:"Precious", p:0, c:'red', lastP: 0, lastRank: 23 },
-                { n:"VIJETHA", t:"Divine", p:0, c:'red', lastP: 0, lastRank: 24 },
-                { n:"SHYAMALA", t:"Divine", p:0, c:'red', lastP: 0, lastRank: 25 },
-                { n:"SEEMA", t:"Divine", p:0, c:'red', lastP: 0, lastRank: 26 },
-                { n:"SUDEEP", t:"Divine", p:0, c:'red', lastP: 0, lastRank: 27 },
-                { n:"VINAY", t:"Divine", p:0, c:'red', lastP: 0, lastRank: 28 },
-                { n:"MAHESH", t:"Mine", p:0, c:'red', lastP: 0, lastRank: 29 },
-                { n:"AYAPPA", t:"Mine", p:0, c:'red', lastP: 0, lastRank: 30 },
-                { n:"SHAMBHAVI", t:"Mine", p:0, c:'red', lastP: 0, lastRank: 31 },
-                { n:"ASHIQ S", t:"Mine", p:0, c:'red', lastP: 0, lastRank: 32 },
-                { n:"NAVEEN", t:"Zoul", p:0, c:'red', lastP: 0, lastRank: 33 },
-                { n:"MUNEER", t:"Zoul", p:0, c:'red', lastP: 0, lastRank: 34 },
-                { n:"ARUN", t:"Zoul", p:0, c:'red', lastP: 0, lastRank: 35 },
-                { n:"THANUSH", t:"Zoul", p:0, c:'red', lastP: 0, lastRank: 36 },
-                { n:"LOHIT", t:"Zoul", p:0, c:'red', lastP: 0, lastRank: 37 },
-                { n:"PREETHI", t:"Zoul", p:0, c:'red', lastP: 0, lastRank: 38 },
-                { n:"PRAVEEN", t:"Zoul", p:0, c:'red', lastP: 0, lastRank: 39 }
-            ]
+            teams: [],
+            staff: []
         };
+
+        async function fetchLiveSync() {
+            const syncDot = document.getElementById('syncDot');
+            try {
+                const response = await fetch(CSV_LINK);
+                const csvData = await response.text();
+                const rows = csvData.split('\n').map(r => r.split(','));
+                
+                const tempTeams = [];
+                const tempStaff = [];
+
+                rows.slice(1).forEach(cols => {
+                    const type = cols[0]?.trim().toLowerCase();
+                    if (type === 'team') {
+                        tempTeams.push({
+                            name: cols[1],
+                            leader: cols[2],
+                            pct: parseInt(cols[3]) || 0,
+                            lastPct: parseInt(cols[4]) || 0,
+                            c: cols[5]?.trim() || 'blue'
+                        });
+                    } else if (type === 'staff') {
+                        tempStaff.push({
+                            n: cols[1],
+                            t: cols[2],
+                            p: parseInt(cols[3]) || 0,
+                            lastP: parseInt(cols[4]) || 0,
+                            lastRank: parseInt(cols[5]) || 1,
+                            c: cols[6]?.trim() || 'blue'
+                        });
+                    }
+                });
+
+                state.teams = tempTeams;
+                state.staff = tempStaff;
+                
+                const now = new Date();
+                state.lastUpdated = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) + ", " + now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+                
+                const topTeam = tempTeams.sort((a,b) => b.pct - a.pct)[0];
+                const topStaff = tempStaff.sort((a,b) => b.p - a.p)[0];
+                state.ticker = `Team ${topTeam.name} ${rankingIcons[0]} leading at ${topTeam.pct}% | ${topStaff.n} Star Performer at ${topStaff.p}% | managed by Suraj Prakash v38.6`;
+
+                // Successful sync visual feedback
+                syncDot.style.background = 'var(--neon-green)';
+                syncDot.style.boxShadow = '0 0 8px var(--neon-green)';
+                render();
+            } catch (error) {
+                console.error("Engine Sync Error:", error);
+                syncDot.style.background = 'var(--neon-red)';
+                syncDot.style.boxShadow = '0 0 8px var(--neon-red)';
+                document.getElementById('lastSyncStamp').innerHTML = `<span id="syncDot" class="sync-dot" style="background:var(--neon-red)"></span>SYNC ERROR - CHECK CONNECTION`;
+            }
+        }
 
         function updateCountdown() {
             const endDate = new Date("Jan 27, 2026 00:00:00").getTime();
@@ -199,11 +214,12 @@
             updateCountdown();
             document.getElementById('liveTicker').innerText = state.ticker;
             if (state.lastUpdated) {
-                document.getElementById('lastSyncStamp').innerText = "LAST UPDATED: " + state.lastUpdated;
+                document.getElementById('lastSyncStamp').innerHTML = `<span id="syncDot" class="sync-dot pulse"></span>LAST REFRESH: ${state.lastUpdated}`;
             }
             const race = document.getElementById('teamRaceCont');
             const grid = document.getElementById('staffGridCont');
             race.innerHTML = ''; grid.innerHTML = '';
+
             state.teams.sort((a,b) => b.pct - a.pct).forEach((t, idx) => {
                 const growth = t.pct - t.lastPct;
                 const icon = rankingIcons[idx] || '🚶';
@@ -222,6 +238,7 @@
                         <div class="c-${t.c}" style="font-size:1.3rem; font-weight:bold; margin-left:12px;">${t.pct}%</div>
                     </div>`;
             });
+
             state.staff.sort((a,b) => b.p - a.p).forEach((s, i) => {
                 const curRank = i + 1;
                 const rankChg = s.lastRank - curRank;
@@ -245,28 +262,13 @@
             });
         }
 
-        function checkVersion() { alert("MGD Leaderboard\nVersion: 38.4\nCommander: Suraj Prakash\nStatus: Live Sync Active"); }
+        function checkVersion() { alert("MGD Leaderboard\nVersion: 38.6\nCommander: Suraj Prakash\nStatus: LIVE SMART ENGINE"); }
         function party() { clickSfx(); confetti({ particleCount: 150, spread: 60, origin: { y: 0.6 } }); }
 
         function openAdmin() {
             if(prompt("ACCESS CODE:") === "Suraj@2026") {
-                const fields = document.getElementById('adminFields');
-                fields.innerHTML = '<h4 class="c-blue" style="font-size:0.7rem">TEAM SCORES</h4>';
-                state.teams.forEach((t, i) => { fields.innerHTML += `<div class="input-box"><label>${t.name}</label><input type="number" id="t-${i}" value="${t.pct}"></div>`; });
-                fields.innerHTML += '<h4 class="c-blue" style="font-size:0.7rem; margin-top:12px;">STAFF LEADERBOARD</h4>';
-                state.staff.forEach((s, i) => { fields.innerHTML += `<div class="input-box"><label>${s.n}</label><input type="number" id="s-${i}" value="${s.p}"></div>`; });
-                document.getElementById('adminModal').style.display = 'flex';
+                window.open("https://docs.google.com/spreadsheets/d/1vS6tzd7SDpOQ6zHwIGlxNBRFGEG-62iLWa2wMyGyFgjxAWQC3KxP_qBicWEWuBaMsCz1Ydeq-im64_b/edit", "_blank");
             }
-        }
-
-        function saveData() {
-            state.teams.forEach((t, i) => { t.lastPct = t.pct; t.pct = parseInt(document.getElementById(`t-${i}`).value); });
-            state.staff.forEach((s, i) => { s.lastRank = state.staff.indexOf(s) + 1; s.lastP = s.p; s.p = parseInt(document.getElementById(`s-${i}`).value); });
-            state.ticker = document.getElementById('in-ticker').value || state.ticker;
-            const now = new Date();
-            state.lastUpdated = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) + ", " + now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-            render(); 
-            document.getElementById('adminModal').style.display = 'none';
         }
 
         if ('serviceWorker' in navigator) {
@@ -279,8 +281,11 @@
                     .catch(err => console.error('PWA Setup Error:', err));
             });
         }
-        window.onload = render;
+        
+        window.onload = () => {
+            fetchLiveSync();
+            setInterval(fetchLiveSync, 30000); // 30-second Auto-Refresh
+        };
     </script>
 </body>
 </html>
-
