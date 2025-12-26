@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGD Hesaraghatta v37.9</title>
+    <title>MGD Hesaraghatta v38.6</title>
     <style>
         :root {
             --bg-black: #050505;
@@ -97,7 +97,7 @@
     </div>
 
     <div class="ticker">
-        <div class="ticker-move" id="ticker-text">SYNCHRONIZING MGD HUB v37.9...</div>
+        <div class="ticker-move" id="ticker-text">SYNCHRONIZING MGD HUB v38.6...</div>
     </div>
 
     <script>
@@ -130,7 +130,7 @@
                         curr: parseFloat(cols[3]) || 0,
                         prev: parseFloat(cols[4]) || 0,
                         icon: cols[5]?.trim() || '🏎️',
-                        lastRank: parseInt(cols[6]) || 0
+                        lastRank: parseInt(cols[6]) || 0 // Maps to Column G
                     };
                     if(entry.type === 'team') teams.push(entry);
                     else if(entry.type === 'staff') staff.push(entry);
@@ -176,9 +176,13 @@
                     const isWarning = s.curr < 30;
                     const currentRank = i + 1;
                     
+                    // TREND INDICATOR LOGIC
                     let trendIcon = '';
-                    if (s.lastRank && currentRank < s.lastRank) trendIcon = '<span style="color:var(--neon-green-growth)">⬆️</span>';
-                    else if (s.lastRank && currentRank > s.lastRank) trendIcon = '<span style="color:var(--neon-red-glow)">⬇️</span>';
+                    if (s.lastRank && currentRank < s.lastRank) {
+                        trendIcon = '<span style="color:var(--neon-green-growth); text-shadow: 0 0 5px var(--neon-green-growth);">⬆️</span>';
+                    } else if (s.lastRank && currentRank > s.lastRank) {
+                        trendIcon = '<span style="color:var(--neon-red-glow); text-shadow: 0 0 5px var(--neon-red-glow);">⬇️</span>';
+                    }
 
                     return `
                         <div class="staff-card ${isCritical ? 'critical-glow-red' : ''}">
@@ -207,7 +211,7 @@
                 const topS = staff[0] || {name:'N/A', curr:0};
 
                 document.getElementById('ticker-text').innerText = 
-                    `Team Precious ${tP.icon} leading at ${tP.curr}% | Team Divine ${tD.icon} at ${tD.curr}% | Team Mine ${tM.icon} at ${tM.curr}% | Team Zoul ${tZ.icon} at ${tZ.curr}% | ${topS.name} Star Performer at ${topS.curr}% | managed by Suraj Prakash, v37.9`;
+                    `Team Precious ${tP.icon} leading at ${tP.curr}% | Team Divine ${tD.icon} at ${tD.curr}% | Team Mine ${tM.icon} at ${tM.curr}% | Team Zoul ${tZ.icon} at ${tZ.curr}% | ${topS.name} Star Performer at ${topS.curr}% | managed by Suraj Prakash, v38.6`;
 
             } catch (e) { console.error("Sync Error", e); }
         }
