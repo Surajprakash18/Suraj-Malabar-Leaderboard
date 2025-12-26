@@ -127,7 +127,9 @@
             <button onclick="saveData()" style="width:100%; padding:10px; background:var(--neon-green); border:none; font-weight:bold; cursor:pointer;">PUSH TO SHOWROOM SCREEN</button>
         </div>
     </div>
-
+<div id="lastSyncStamp" style="text-align: center; color: var(--neon-blue); font-size: 0.6rem; margin-top: 15px; opacity: 0.7; letter-spacing: 1px; text-shadow: 0 0 5px var(--neon-blue);">
+    LAST REFRESH: WAITING FOR SYNC...
+</div>
     <script>
         const clickSfx = () => {
             const ctx = new AudioContext(); const osc = ctx.createOscillator(); const gain = ctx.createGain();
@@ -141,6 +143,7 @@
 
         let state = {
             ticker: "MGD Hesaraghatta: Team Precious 🏎️ leading at 31%! Team Divine 🏍️ at 16%! Team Mine 🏃 at 8%! Team Zoul 🚶 at 4%!",
+              lastUpdated: "",
             teams: [
                 { id:'p', name:'Precious', leader:'Jaffar Siddik', pct:31, c:'gold', lastPct: 21 },
                 { id:'d', name:'Divine', leader:'Manu KR', pct:16, c:'blue', lastPct: 10 },
@@ -191,6 +194,10 @@
         };
 
         function render() {
+              // Ensure timestamp shows up on every refresh
+if (state.lastUpdated) {
+    document.getElementById('lastSyncStamp').innerText = "LAST UPDATED: " + state.lastUpdated;
+}
             document.getElementById('liveTicker').innerText = state.ticker;
             const race = document.getElementById('teamRaceCont');
             const grid = document.getElementById('staffGridCont');
@@ -267,6 +274,13 @@
                 s.crit = s.p < 5;
             });
             state.ticker = document.getElementById('in-ticker').value || state.ticker;
+              // Capture the current moment in IST format
+const now = new Date();
+state.lastUpdated = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) + ", " + 
+                  now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+// Update the text on the screen immediately
+document.getElementById('lastSyncStamp').innerText = "LAST UPDATED: " + state.lastUpdated;
             render(); document.getElementById('adminModal').style.display = 'none';
         }
 
@@ -274,6 +288,7 @@
     </script>
 </body>
 </html>
+
 
 
 
