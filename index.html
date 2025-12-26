@@ -3,377 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGD Hesaraghatta Dashboard</title>
+    <title>MGD Hesaraghatta Master v2.3</title>
     <style>
-        /* --- CSS STYLES TO MATCH THE "BEFORE" IMAGE --- */
         :root {
-            --bg-color: #0a0a0a;
-            --card-bg: #141414;
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
-            
-            /* Define the specific team colors from the first image */
-            --neon-yellow: #ffea00; /* For Precious */
-            --neon-cyan: #00e5ff;   /* For Divine */
-            --neon-green: #39ff14;  /* For Mine */
-            --neon-red: #ff1744;    /* For Zoul */
+            --bg-black: #050505;
+            --card-bg: #121317;
+            --precious: #ffea00;
+            --divine: #00e5ff;
+            --mine: #39ff14;
+            --zoul: #ff1744;
+            --neon-cyan: #00f2ff;
         }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            text-transform: uppercase;
-        }
+        body { background-color: var(--bg-black); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; text-transform: uppercase; }
 
-        /* --- Header Section --- */
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            color: var(--neon-cyan);
-            font-size: 2.5em;
-            margin: 0;
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
-        .header .sub-title {
-            color: var(--neon-yellow);
-            font-size: 1em;
-            margin: 5px 0;
-            letter-spacing: 1px;
-        }
-        .header .deadline {
-            color: var(--neon-red);
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-top: 10px;
-        }
+        /* HEADER */
+        .header { text-align: center; margin-bottom: 25px; }
+        .main-title { color: var(--neon-cyan); font-size: 28px; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon-cyan); margin: 0; }
+        .sub-title { color: var(--precious); font-size: 14px; margin: 5px 0; }
+        .deadline { color: var(--zoul); font-weight: bold; font-size: 18px; }
 
-        /* --- Main Containers --- */
-        .container {
-            border: 2px solid var(--neon-cyan);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-        }
-        .section-title {
-            text-align: center;
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 25px;
-            letter-spacing: 2px;
-        }
+        /* SECTION BOXES */
+        .outer-box { border: 2px solid var(--neon-cyan); border-radius: 20px; padding: 20px; margin-bottom: 25px; }
+        .section-title { text-align: center; font-weight: 900; font-size: 20px; margin-bottom: 20px; letter-spacing: 2px; }
 
-        /* --- TEAM RACE STANDINGS --- */
-        .race-card {
-            background-color: var(--card-bg);
-            border-radius: 15px;
-            padding: 15px 20px;
-            margin-bottom: 15px;
-            position: relative;
-            /* This variable will be set dynamically for each team */
-            border-left: 5px solid var(--team-color, var(--text-secondary));
-        }
+        /* --- TOP PART: TEAM RACING --- */
+        .race-card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #333; }
+        .race-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .race-name { font-size: 18px; font-weight: 900; }
+        .race-pct { font-size: 24px; font-weight: 900; }
+        .race-track { background: #222; height: 24px; border-radius: 12px; overflow: hidden; position: relative; }
+        .race-fill { height: 100%; border-radius: 12px; position: relative; transition: width 1s; }
+        .race-icon { position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 16px; }
 
-        .team-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+        /* --- BOTTOM PART: STAFF GRID --- */
+        .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+        .staff-card { background: var(--card-bg); border-radius: 10px; padding: 12px; border: 1px solid #222; position: relative; }
+        .staff-tag { display: inline-block; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 3px; color: black; margin-bottom: 8px; }
+        .staff-name { font-size: 16px; font-weight: 900; margin-bottom: 5px; }
+        .staff-stats { display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; margin-bottom: 5px; }
+        .staff-bar { background: #222; height: 4px; border-radius: 2px; width: 100%; overflow: hidden; }
+        .staff-fill { height: 100%; transition: width 1s; }
 
-        .team-name {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: var(--team-color, var(--text-primary));
-            display: flex;
-            align-items: center;
-        }
-        .team-name .crown { margin-right: 8px; }
-        .manager-name {
-            color: var(--text-secondary);
-            font-size: 0.8em;
-            margin-left: 5px;
-            text-transform: none;
-        }
+        /* TEAM COLORS */
+        .PRECIOUS { color: var(--precious); } .PRECIOUS-bg { background: var(--precious); }
+        .DIVINE { color: var(--divine); } .DIVINE-bg { background: var(--divine); }
+        .MINE { color: var(--mine); } .MINE-bg { background: var(--mine); }
+        .ZOUL { color: var(--zoul); } .ZOUL-bg { background: var(--zoul); }
 
-        .growth-stat {
-            font-size: 0.9em;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        .text-green { color: var(--neon-green); }
-        .text-red { color: var(--neon-red); }
-
-        .team-score {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: var(--team-color, var(--text-primary));
-        }
-
-        /* --- Progress Bar (The biggest fix) --- */
-        .progress-track {
-            background-color: #2a2a2a;
-            height: 25px;
-            border-radius: 12.5px;
-            overflow: hidden;
-            position: relative;
-        }
-        .progress-fill {
-            height: 100%;
-            /* Use the dynamic team color for the bar */
-            background-color: var(--team-color, var(--text-secondary));
-            border-radius: 12.5px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 5px;
-            transition: width 1s ease-in-out;
-        }
-        .progress-icon {
-            font-size: 1.2em;
-            line-height: 1;
-        }
-
-        /* --- Team-Specific Color Classes --- */
-        .team-precious { --team-color: var(--neon-yellow); }
-        .team-divine { --team-color: var(--neon-cyan); }
-        .team-mine { --team-color: var(--neon-green); }
-        .team-zoul { --team-color: var(--neon-red); }
-
-
-        /* --- STAFF LEADERBOARD --- */
-        .staff-card {
-            background-color: var(--card-bg);
-            border-radius: 15px;
-            padding: 15px 20px;
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            border: 1px solid #333;
-        }
-        
-        .staff-tag {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.7em;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: var(--bg-color);
-            /* Default, will be overridden by team class */
-            background-color: var(--text-secondary); 
-        }
-
-        .staff-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .staff-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: var(--team-color, var(--text-primary));
-            display: flex;
-            align-items: center;
-        }
-        .staff-name .crown { margin-right: 8px; }
-        
-        .staff-rank {
-            background-color: #333;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.8em;
-        }
-
-        .staff-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-        .achievement { color: var(--text-primary); }
-
-
-        /* --- Ticker --- */
-        .ticker-wrap {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            overflow: hidden;
-            height: 30px;
-            background-color: rgba(0, 229, 255, 0.1);
-            border-top: 1px solid var(--neon-cyan);
-            display: flex;
-            align-items: center;
-        }
-        .ticker {
-            white-space: nowrap;
-            padding-left: 100%;
-            animation: ticker 20s linear infinite;
-            color: var(--neon-cyan);
-            font-weight: bold;
-        }
-        @keyframes ticker {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
+        /* TICKER */
+        .ticker { background: #000; border-top: 2px solid var(--neon-cyan); color: var(--neon-cyan); position: fixed; bottom: 0; left: 0; width: 100%; padding: 8px; font-weight: bold; overflow: hidden; }
+        .ticker-move { display: inline-block; white-space: nowrap; animation: move 20s linear infinite; }
+        @keyframes move { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>MGD Hesaraghatta</h1>
-        <div class="sub-title">Managed by Suraj Prakash</div>
-        <div class="deadline">Deadline: 31 Days Pending</div>
+        <h1 class="main-title">MGD HESARAGHATTA</h1>
+        <div class="sub-title">MANAGED BY SURAJ PRAKASH</div>
+        <div class="deadline">DEADLINE: 31 DAYS PENDING</div>
     </div>
 
-    <div class="container">
-        <div class="section-title">Team Race Standings</div>
-        <div id="team-container">
-            </div>
+    <div class="outer-box">
+        <div class="section-title">TEAM RACE STANDINGS</div>
+        <div id="team-racing"></div>
     </div>
 
-    <div class="container">
-        <div class="section-title">Staff Leaderboard</div>
-        <div id="staff-container">
-            </div>
+    <div class="outer-box">
+        <div class="section-title">STAFF LEADERBOARD</div>
+        <div id="staff-leaderboard" class="staff-grid"></div>
     </div>
 
-    <div class="ticker-wrap">
-        <div class="ticker" id="ticker-text">
-            Loading data...
-        </div>
+    <div class="ticker">
+        <div class="ticker-move" id="ticker-text">LOADING LIVE UPDATES FROM PEENYA...</div>
     </div>
-
 
     <script>
-        // --- CONFIGURATION ---
-        // REPLACE WITH YOUR ACTUAL GOOGLE SHEET CSV URL
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6tzd7SDpOQ6zHwIGlxNBRFGEG-62iLWa2wMyGyFgjxAWQC3KxP_qBicWEWuBaMsCz1Ydeq-im64_b/pub?gid=0&single=true&output=csv';
-        
-        // --- MAIN FUNCTION TO FETCH AND UPDATE DATA ---
+        const SHEET_CSV_URL = 'YOUR_PUBLISHED_CSV_URL_HERE';
+
         async function updateDashboard() {
             try {
                 const response = await fetch(SHEET_CSV_URL);
                 const data = await response.text();
-                
-                // Parse CSV data (assumes header in row 1)
                 const rows = data.split('\n').slice(1);
-                const teams = [];
-                const staff = [];
+                
+                let teams = [];
+                let staff = [];
 
-                // --- Data Processing Loop ---
-                // Adjust column indices [0], [1], etc., if your sheet is different.
-                // Assumed structure: Type | Name | Manager/Sub | Current% | Previous% | Icon
                 rows.forEach(row => {
                     const cols = row.split(',');
-                    if (cols.length < 5) return; // Skip empty rows
-
-                    const type = cols[0].trim().toLowerCase();
-                    const name = cols[1].trim();
-                    // Create a CSS-friendly class name from the team name (e.g., "Precious" -> "team-precious")
-                    const teamClass = 'team-' + name.toLowerCase().replace(/\s+/g, '-');
-
                     const entry = {
-                        name: name,
-                        sub: cols[2].trim(),
-                        current: parseFloat(cols[3]),
-                        previous: parseFloat(cols[4]),
-                        icon: cols[5] ? cols[5].trim() : '',
-                        teamClass: teamClass
+                        type: cols[0]?.trim().toLowerCase(),
+                        name: cols[1]?.trim(),
+                        sub: cols[2]?.trim().toUpperCase(),
+                        curr: parseFloat(cols[3]) || 0,
+                        prev: parseFloat(cols[4]) || 0,
+                        icon: cols[5]?.trim() || '🏎️'
                     };
-
-                    if (type === 'team') {
-                        teams.push(entry);
-                    } else if (type === 'staff') {
-                        // For staff, we can use the first column as their team affiliation if needed
-                        entry.teamName = cols[0].trim();
-                        entry.teamClass = 'team-' + entry.teamName.toLowerCase().replace(/\s+/g, '-');
-                        staff.push(entry);
-                    }
+                    if(entry.type === 'team') teams.push(entry);
+                    else if(entry.type === 'staff') staff.push(entry);
                 });
 
-                // --- Render Teams ---
-                teams.sort((a, b) => b.current - a.current); // Sort by current score
-                
-                const teamHtml = teams.map((team, index) => {
-                    const growth = team.current - team.previous;
-                    const growthClass = growth > 0 ? 'text-green' : 'text-red';
-                    const growthSign = growth > 0 ? '+' : '';
-                    const crown = index === 0 ? '👑' : ''; // Add crown to leader
-
-                    // The `team.teamClass` here is what applies the specific color (yellow, cyan, etc.)
-                    return `
-                        <div class="race-card ${team.teamClass}">
-                            <div class="team-header">
-                                <div class="team-name">
-                                    <span class="crown">${crown}</span> ${team.name} 
-                                    <span class="manager-name">(${team.sub})</span>
-                                    <span class="growth-stat ${growthClass}">${growthSign}${growth}%</span>
-                                </div>
-                                <div class="team-score">${team.current}%</div>
-                            </div>
-                            <div class="progress-track">
-                                <div class="progress-fill" style="width: ${team.current}%;">
-                                    <span class="progress-icon">${team.icon}</span>
-                                </div>
+                // TOP: RACE STANDINGS
+                teams.sort((a,b) => b.curr - a.curr);
+                document.getElementById('team-racing').innerHTML = teams.map(t => `
+                    <div class="race-card" style="border-left-color: var(--${t.name.toLowerCase()})">
+                        <div class="race-header">
+                            <div class="race-name ${t.name}">${t.name} <span style="font-size:12px; color:#888;">(${t.sub})</span> <span style="color:var(--mine); font-size:12px;">+${t.curr - t.prev}%</span></div>
+                            <div class="race-pct ${t.name}">${t.curr}%</div>
+                        </div>
+                        <div class="race-track">
+                            <div class="race-fill ${t.name}-bg" style="width: ${t.curr}%">
+                                <span class="race-icon">${t.icon}</span>
                             </div>
                         </div>
-                    `;
-                }).join('');
-                document.getElementById('team-container').innerHTML = teamHtml;
+                    </div>
+                `).join('');
 
-                // --- Render Staff ---
-                staff.sort((a, b) => b.current - a.current); // Sort by current score
-
-                const staffHtml = staff.map((person, index) => {
-                    const growth = person.current - person.previous;
-                    const growthClass = growth > 0 ? 'text-green' : 'text-red';
-                    const growthSign = growth > 0 ? '+' : '';
-                    const crown = index === 0 ? '👑' : '';
-                    
-                    // Apply team color to staff card as well
-                    return `
-                        <div class="staff-card ${person.teamClass}">
-                            <div class="staff-tag" style="background-color: var(--team-color)">${person.teamName}</div>
-                            <div class="staff-info">
-                                <div class="staff-name">
-                                    <span class="crown">${crown}</span> ${person.name}
-                                </div>
-                                <div class="staff-rank">#${index + 1}</div>
-                            </div>
-                            <div class="staff-stats">
-                                <span class="${growthClass}">${growthSign}${growth}% GROWTH</span>
-                                <span class="achievement">${person.current}% ACHIEVED</span>
-                            </div>
+                // BOTTOM: STAFF GRID
+                staff.sort((a,b) => b.curr - a.curr);
+                document.getElementById('staff-leaderboard').innerHTML = staff.map((s, i) => `
+                    <div class="staff-card">
+                        <div class="staff-tag ${s.sub}-bg">${s.sub}</div>
+                        <div class="staff-name ${s.sub}">${s.name}</div>
+                        <div class="staff-stats">
+                            <span style="color:var(--mine)">+${s.curr - s.prev}% GROWTH</span>
+                            <span style="color:#eee">${s.curr}% ACHIEVED</span>
                         </div>
-                    `;
-                }).join('');
-                document.getElementById('staff-container').innerHTML = staffHtml;
+                        <div class="staff-bar">
+                            <div class="staff-fill ${s.sub}-bg" style="width: ${Math.min(s.curr, 100)}%"></div>
+                        </div>
+                        <div style="position:absolute; right:10px; top:12px; font-size:10px; color:#666;">#${i+1}</div>
+                    </div>
+                `).join('');
 
-                // --- Update Ticker ---
-                const leader = teams.length > 0 ? teams[0] : {name: 'N/A', current: 0};
-                const tickerText = `Team ${leader.name} is leading the race at ${leader.current}%! | Keep pushing for the final deadline! | MGD Hesaraghatta`;
-                document.getElementById('ticker-text').textContent = tickerText;
+                // TICKER
+                document.getElementById('ticker-text').innerText = `TEAM ${teams[0].name} LEADING AT ${teams[0].curr}% | STAR PERFORMER: ${staff[0].name} AT ${staff[0].curr}% | MGD LIVE`;
 
-            } catch (error) {
-                console.error('Error fetching or parsing data:', error);
-                document.getElementById('ticker-text').textContent = 'Error loading data. Please check the connection.';
-            }
+            } catch (e) { console.error("Sync Error", e); }
         }
 
-        // Initial call and setup auto-refresh every 30 seconds
-        updateDashboard();
         setInterval(updateDashboard, 30000);
-
+        updateDashboard();
     </script>
 </body>
 </html>
