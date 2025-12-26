@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGD Hesaraghatta v37.2</title>
+    <title>MGD Hesaraghatta v37.4</title>
     <style>
         :root {
             --bg-black: #050505;
@@ -13,6 +13,7 @@
             --mine: #39ff14;
             --zoul: #ff1744;
             --neon-cyan: #00f2ff;
+            --neon-red: #ff0000;
         }
 
         body { background-color: var(--bg-black); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; text-transform: uppercase; }
@@ -27,31 +28,41 @@
         .outer-box { border: 2px solid var(--neon-cyan); border-radius: 20px; padding: 20px; margin-bottom: 25px; }
         .section-title { text-align: center; font-weight: 900; font-size: 20px; margin-bottom: 20px; letter-spacing: 2px; }
 
-        /* TOP PART: TEAM RACING */
-        .race-card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #333; }
+        /* TOP PART: TEAM RACING STANDINGS */
+        .race-card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #333; position: relative; }
         .race-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .race-name { font-size: 18px; font-weight: 900; }
+        .race-name { font-size: 18px; font-weight: 900; display: flex; align-items: center; }
         .race-pct { font-size: 24px; font-weight: 900; }
         .race-track { background: #222; height: 24px; border-radius: 12px; overflow: hidden; position: relative; }
         .race-fill { height: 100%; border-radius: 12px; position: relative; transition: width 1s; }
         .race-icon { position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 16px; }
 
-        /* BOTTOM PART: STAFF GRID */
+        /* BOTTOM PART: STAFF LEADERBOARD GRID */
         .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
         .staff-card { background: var(--card-bg); border-radius: 10px; padding: 12px; border: 1px solid #222; position: relative; }
         .staff-tag { display: inline-block; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 3px; color: black; margin-bottom: 8px; }
-        .staff-name { font-size: 16px; font-weight: 900; margin-bottom: 5px; }
+        .staff-name { font-size: 16px; font-weight: 900; margin-bottom: 5px; display: flex; align-items: center; }
         .staff-stats { display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; margin-bottom: 5px; }
         .staff-bar { background: #222; height: 4px; border-radius: 2px; width: 100%; overflow: hidden; }
         .staff-fill { height: 100%; transition: width 1s; }
 
-        /* RANK TREND BADGES */
+        /* RANK BADGE STYLES */
         .rank-badge { position: absolute; right: 10px; top: 12px; font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 3px; color: white; }
-        .trend-up { background: #008000; }
-        .trend-down { background: #b22222; }
-        .trend-neutral { background: #333; color: #888; }
+        .rank-1 { background: #FFD700; color: black; } 
+        .rank-2 { background: #C0C0C0; color: black; } 
+        .rank-3 { background: #CD7F32; color: black; } 
+        .rank-other { background: #333; color: #888; }
 
-        /* ROTATING CROWN ANIMATION */
+        /* RANK TREND ARROWS */
+        .trend-arrow { margin-right: 4px; }
+        .trend-up { color: #39FF14; }
+        .trend-down { color: #FF1744; }
+
+        /* WARNING GLOW LOGIC */
+        .warning-glow { box-shadow: inset 0 0 8px var(--neon-red); border-color: var(--neon-red) !important; }
+        .warning-icon { margin-left: 5px; font-size: 14px; }
+
+        /* ANIMATIONS */
         @keyframes crown-rotate { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
         .rotating-crown { display: inline-block; animation: crown-rotate 3s linear infinite; perspective: 1000px; margin-right: 5px; }
 
@@ -86,7 +97,7 @@
     </div>
 
     <div class="ticker">
-        <div class="ticker-move" id="ticker-text">CONNECTING TO ENGINE...</div>
+        <div class="ticker-move" id="ticker-text">SYNCING LIVE HUB DATA...</div>
     </div>
 
     <script>
@@ -110,7 +121,7 @@
                         curr: parseFloat(cols[3]) || 0,
                         prev: parseFloat(cols[4]) || 0,
                         icon: cols[5]?.trim() || '🏎️',
-                        lastRank: parseInt(cols[6]) || 0 // New Column G for Rank Trend
+                        lastRank: parseInt(cols[6]) || 0 
                     };
                     if(entry.type === 'team') teams.push(entry);
                     else if(entry.type === 'staff') staff.push(entry);
@@ -118,10 +129,16 @@
 
                 // RENDER TEAMS
                 teams.sort((a,b) => b.curr - a.curr);
-                document.getElementById('team-racing').innerHTML = teams.map((t, i) => `
-                    <div class="race-card" style="border-left-color: var(--${t.name.toLowerCase()})">
+                document.getElementById('team-racing').innerHTML = teams.map((t, i) => {
+                    const growth = t.curr - t.prev;
+                    const isNoGrowth = growth <= 0;
+                    const warningClass = isNoGrowth ? 'warning-glow' : '';
+                    const warningIcon = isNoGrowth ? '<span class="warning-icon">⚠️</span>' : '';
+
+                    return `
+                    <div class="race-card ${warningClass}" style="border-left-color: var(--${t.name.toLowerCase()})">
                         <div class="race-header">
-                            <div class="race-name ${t.name}">${i === 0 ? '<span class="rotating-crown">👑</span>' : ''} ${t.name} <span style="font-size:12px; color:#888;">(${t.sub})</span> <span style="color:var(--mine); font-size:12px;">+${(t.curr - t.prev).toFixed(0)}%</span></div>
+                            <div class="race-name ${t.name}">${i === 0 ? '<span class="rotating-crown">👑</span>' : ''} ${t.name} ${warningIcon} <span style="font-size:12px; color:#888;">(${t.sub})</span> <span style="color:var(--mine); font-size:12px;">+${growth.toFixed(0)}%</span></div>
                             <div class="race-pct ${t.name}">${t.curr}%</div>
                         </div>
                         <div class="race-track">
@@ -130,33 +147,42 @@
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
 
                 // RENDER STAFF
                 staff.sort((a,b) => b.curr - a.curr);
                 document.getElementById('staff-leaderboard').innerHTML = staff.map((s, i) => {
                     const currentRank = i + 1;
+                    const growth = s.curr - s.prev;
+                    const isNoGrowth = growth <= 0;
+                    const warningClass = isNoGrowth ? 'warning-glow' : '';
+                    const warningIcon = isNoGrowth ? '<span class="warning-icon">⚠️</span>' : '';
                     const crown = i === 0 ? '<span class="rotating-crown">👑</span>' : '';
-                    let trendBadge = `<div class="rank-badge trend-neutral">#${currentRank}</div>`;
-                    
-                    if (s.lastRank && currentRank < s.lastRank) trendBadge = `<div class="rank-badge trend-up">⬆️ #${currentRank}</div>`;
-                    else if (s.lastRank && currentRank > s.lastRank) trendBadge = `<div class="rank-badge trend-down">⬇️ #${currentRank}</div>`;
+
+                    let rankClass = 'rank-other';
+                    if (currentRank === 1) rankClass = 'rank-1';
+                    else if (currentRank === 2) rankClass = 'rank-2';
+                    else if (currentRank === 3) rankClass = 'rank-3';
+
+                    let trendArrow = '';
+                    if (s.lastRank && currentRank < s.lastRank) trendArrow = '<span class="trend-arrow trend-up">⬆️</span>';
+                    else if (s.lastRank && currentRank > s.lastRank) trendArrow = '<span class="trend-arrow trend-down">⬇️</span>';
 
                     return `
-                        <div class="staff-card">
+                        <div class="staff-card ${warningClass}">
                             <div class="staff-tag ${s.sub}-bg">${s.sub}</div>
-                            <div class="staff-name ${s.sub}">${crown}${s.name}</div>
+                            <div class="staff-name ${s.sub}">${crown}${s.name}${warningIcon}</div>
                             <div class="staff-stats">
-                                <span style="color:var(--mine)">+${(s.curr - s.prev).toFixed(0)}% GROWTH</span>
+                                <span style="color:var(--mine)">+${growth.toFixed(0)}% GROWTH</span>
                                 <span style="color:#eee">${s.curr}% ACHIEVED</span>
                             </div>
                             <div class="staff-bar"><div class="staff-fill ${s.sub}-bg" style="width: ${Math.min(s.curr, 100)}%"></div></div>
-                            ${trendBadge}
+                            <div class="rank-badge ${rankClass}">${trendArrow}#${currentRank}</div>
                         </div>
                     `;
                 }).join('');
 
-                // BUILD TICKER FORMAT
+                // TICKER LOGIC
                 const tP = teams.find(t => t.name === 'PRECIOUS') || {curr:0, icon:'🏎️'};
                 const tD = teams.find(t => t.name === 'DIVINE') || {curr:0, icon:'🏍️'};
                 const tM = teams.find(t => t.name === 'MINE') || {curr:0, icon:'🏃'};
@@ -164,7 +190,7 @@
                 const topS = staff[0] || {name:'N/A', curr:0};
 
                 document.getElementById('ticker-text').innerText = 
-                    `Team Precious ${tP.icon} leading at ${tP.curr}% | Team Divine ${tD.icon} at ${tD.curr}% | Team Mine ${tM.icon} at ${tM.curr}% | Team Zoul ${tZ.icon} at ${tZ.curr}% | ${topS.name} Star Performer at ${topS.curr}% | managed by Suraj Prakash, V37.2`;
+                    `Team Precious ${tP.icon} leading at ${tP.curr}% | Team Divine ${tD.icon} at ${tD.curr}% | Team Mine ${tM.icon} at ${tM.curr}% | Team Zoul ${tZ.icon} at ${tZ.curr}% | ${topS.name} Star Performer at ${topS.curr}% | managed by Suraj Prakash, V37.4`;
 
             } catch (e) { console.error("Sync Error", e); }
         }
@@ -174,4 +200,3 @@
     </script>
 </body>
 </html>
-
