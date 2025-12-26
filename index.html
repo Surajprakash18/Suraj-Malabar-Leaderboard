@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGD Hesaraghatta Master v2.3</title>
+    <title>MGD Hesaraghatta Master v2.4</title>
     <style>
         :root {
             --bg-black: #050505;
@@ -38,12 +38,17 @@
 
         /* --- BOTTOM PART: STAFF GRID --- */
         .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-        .staff-card { background: var(--card-bg); border-radius: 10px; padding: 12px; border: 1px solid #222; position: relative; }
+        .staff-card { background: var(--card-bg); border-radius: 10px; padding: 12px; border: 1px solid #222; position: relative; overflow: hidden; }
         .staff-tag { display: inline-block; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 3px; color: black; margin-bottom: 8px; }
+        
+        /* MANAGER OF THE MONTH BADGE */
+        .manager-badge { background: linear-gradient(90deg, #ffd700, #ff8c00); color: black; font-size: 8px; font-weight: 900; padding: 3px; text-align: center; margin-bottom: 10px; border-radius: 4px; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+        
         .staff-name { font-size: 16px; font-weight: 900; margin-bottom: 5px; }
         .staff-stats { display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; margin-bottom: 5px; }
         .staff-bar { background: #222; height: 4px; border-radius: 2px; width: 100%; overflow: hidden; }
         .staff-fill { height: 100%; transition: width 1s; }
+        .rank-badge { position: absolute; right: 10px; top: 12px; font-size: 10px; color: #666; font-weight: bold; }
 
         /* TEAM COLORS */
         .PRECIOUS { color: var(--precious); } .PRECIOUS-bg { background: var(--precious); }
@@ -52,7 +57,7 @@
         .ZOUL { color: var(--zoul); } .ZOUL-bg { background: var(--zoul); }
 
         /* TICKER */
-        .ticker { background: #000; border-top: 2px solid var(--neon-cyan); color: var(--neon-cyan); position: fixed; bottom: 0; left: 0; width: 100%; padding: 8px; font-weight: bold; overflow: hidden; }
+        .ticker { background: #000; border-top: 2px solid var(--neon-cyan); color: var(--neon-cyan); position: fixed; bottom: 0; left: 0; width: 100%; padding: 8px; font-weight: bold; overflow: hidden; z-index: 100; }
         .ticker-move { display: inline-block; white-space: nowrap; animation: move 20s linear infinite; }
         @keyframes move { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
     </style>
@@ -76,7 +81,7 @@
     </div>
 
     <div class="ticker">
-        <div class="ticker-move" id="ticker-text">LOADING LIVE UPDATES FROM PEENYA...</div>
+        <div class="ticker-move" id="ticker-text">LOADING LIVE UPDATES FROM THE HUB...</div>
     </div>
 
     <script>
@@ -107,10 +112,10 @@
 
                 // TOP: RACE STANDINGS
                 teams.sort((a,b) => b.curr - a.curr);
-                document.getElementById('team-racing').innerHTML = teams.map(t => `
+                document.getElementById('team-racing').innerHTML = teams.map((t, i) => `
                     <div class="race-card" style="border-left-color: var(--${t.name.toLowerCase()})">
                         <div class="race-header">
-                            <div class="race-name ${t.name}">${t.name} <span style="font-size:12px; color:#888;">(${t.sub})</span> <span style="color:var(--mine); font-size:12px;">+${t.curr - t.prev}%</span></div>
+                            <div class="race-name ${t.name}">${i === 0 ? '👑' : ''} ${t.name} <span style="font-size:12px; color:#888;">(${t.sub})</span> <span style="color:var(--mine); font-size:12px;">+${(t.curr - t.prev).toFixed(0)}%</span></div>
                             <div class="race-pct ${t.name}">${t.curr}%</div>
                         </div>
                         <div class="race-track">
@@ -123,23 +128,32 @@
 
                 // BOTTOM: STAFF GRID
                 staff.sort((a,b) => b.curr - a.curr);
-                document.getElementById('staff-leaderboard').innerHTML = staff.map((s, i) => `
-                    <div class="staff-card">
-                        <div class="staff-tag ${s.sub}-bg">${s.sub}</div>
-                        <div class="staff-name ${s.sub}">${s.name}</div>
-                        <div class="staff-stats">
-                            <span style="color:var(--mine)">+${s.curr - s.prev}% GROWTH</span>
-                            <span style="color:#eee">${s.curr}% ACHIEVED</span>
+                document.getElementById('staff-leaderboard').innerHTML = staff.map((s, i) => {
+                    const isLeader = i === 0;
+                    const badge = isLeader ? `<div class="manager-badge">MANAGER OF THE MONTH 🏆</div>` : '';
+                    const crown = isLeader ? '👑' : '';
+
+                    return `
+                        <div class="staff-card">
+                            <div class="staff-tag ${s.sub}-bg">${s.sub}</div>
+                            ${badge}
+                            <div class="staff-name ${s.sub}">${crown} ${s.name}</div>
+                            <div class="staff-stats">
+                                <span style="color:var(--mine)">+${(s.curr - s.prev).toFixed(0)}% GROWTH</span>
+                                <span style="color:#eee">${s.curr}% ACHIEVED</span>
+                            </div>
+                            <div class="staff-bar">
+                                <div class="staff-fill ${s.sub}-bg" style="width: ${Math.min(s.curr, 100)}%"></div>
+                            </div>
+                            <div class="rank-badge">#${i+1}</div>
                         </div>
-                        <div class="staff-bar">
-                            <div class="staff-fill ${s.sub}-bg" style="width: ${Math.min(s.curr, 100)}%"></div>
-                        </div>
-                        <div style="position:absolute; right:10px; top:12px; font-size:10px; color:#666;">#${i+1}</div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 // TICKER
-                document.getElementById('ticker-text').innerText = `TEAM ${teams[0].name} LEADING AT ${teams[0].curr}% | STAR PERFORMER: ${staff[0].name} AT ${staff[0].curr}% | MGD LIVE`;
+                const leadTeam = teams[0] ? teams[0].name : "N/A";
+                const starPerf = staff[0] ? staff[0].name : "N/A";
+                document.getElementById('ticker-text').innerText = `LEADING TEAM: ${leadTeam} AT ${teams[0].curr}% | STAR PERFORMER: ${starPerf} AT ${staff[0].curr}% | MGD LIVE HUB`;
 
             } catch (e) { console.error("Sync Error", e); }
         }
