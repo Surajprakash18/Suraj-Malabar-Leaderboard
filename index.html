@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGD Hesaraghatta v39.3</title>
+    <title>MGD Hesaraghatta v39.5</title>
     <style>
         :root {
             --bg-black: #050505;
@@ -33,7 +33,7 @@
             font-weight: 900;
             color: var(--divine);
             text-shadow: 0 0 8px var(--divine);
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             padding: 5px 10px;
             border-radius: 5px;
             border: 1px solid var(--divine);
@@ -90,7 +90,7 @@
 </head>
 <body>
 
-    <div class="timestamp" id="last-update">UPDATED ON: --</div>
+    <div class="timestamp" id="last-update">UPDATED ON: SYNCING...</div>
 
     <div class="header">
         <h1 class="main-title">MGD HESARAGHATTA</h1>
@@ -109,13 +109,12 @@
     </div>
 
     <div class="ticker">
-        <div class="ticker-move" id="ticker-text">SYNCHRONIZING MGD HUB v39.3...</div>
+        <div class="ticker-move" id="ticker-text">SYNCHRONIZING MGD HUB v39.5...</div>
     </div>
 
     <script>
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6tzd7SDpOQ6zHwIGlxNBRFGEG-62iLWa2wMyGyFgjxAWQC3KxP_qBicWEWuBaMsCz1Ydeq-im64_b/pub?gid=0&single=true&output=csv';
 
-        // NEW: Specific Deadline Logic (Jan 26, 2026)
         function updateDeadline() {
             const now = new Date();
             const targetDate = new Date('2026-01-26T00:00:00'); 
@@ -142,22 +141,29 @@
 
         async function updateDashboard() {
             try {
-                const response = await fetch(SHEET_CSV_URL);
+                // cache_bust added to URL to force fresh data
+                const response = await fetch(SHEET_CSV_URL + '&cb=' + new Date().getTime());
                 const csvText = await response.text();
-                const rows = csvText.split('\n');
+                const allRows = csvText.split(/\r?\n/);
                 
-                const headerCols = rows[0].split(',');
-                if(headerCols[8]) {
-                    document.getElementById('last-update').innerText = "UPDATED ON: " + headerCols[8].trim();
+                // 1. IMPROVED TIMESTAMP EXTRACTION
+                // In CSV, Cell I1 is index 8 of the very first row
+                const headerRow = allRows[0].split(',');
+                if(headerRow[8]) {
+                    const ts = headerRow[8].replace(/"/g, "").trim();
+                    if(ts !== "") {
+                        document.getElementById('last-update').innerText = "UPDATED ON: " + ts;
+                    }
                 }
 
-                const dataRows = rows.slice(1);
+                // 2. DATA PROCESSING
+                const dataRows = allRows.slice(1);
                 let teams = [];
                 let staff = [];
 
                 dataRows.forEach(row => {
                     const cols = row.split(',');
-                    if(cols.length < 4) return;
+                    if(cols.length < 4 || !cols[1]) return;
                     
                     const entry = {
                         type: cols[0]?.trim().toLowerCase(),
@@ -168,12 +174,14 @@
                         icon: cols[5]?.trim() || '🏎️',
                         lastRank: cols[6] ? parseInt(cols[6].trim()) : null
                     };
+
                     if(entry.type === 'team') teams.push(entry);
                     else if(entry.type === 'staff') staff.push(entry);
                 });
 
                 const lowestTeamScore = teams.length ? Math.min(...teams.map(t => t.curr)) : 0;
 
+                // RENDER TEAMS
                 document.getElementById('team-racing').innerHTML = teams.map((t, i) => {
                     const growth = t.curr - t.prev;
                     const growthCol = growth > 0 ? "var(--neon-green-growth)" : "var(--neon-red-glow)";
@@ -194,13 +202,14 @@
                             <div class="race-pct" style="color: ${teamColor}; text-shadow: 0 0 10px ${teamColor};">${t.curr}%</div>
                         </div>
                         <div class="race-track">
-                            <div class="race-fill" style="width: ${t.curr}%; background: ${teamColor}; box-shadow: 0 0 18px ${teamColor}">
+                            <div class="race-fill" style="width: ${Math.min(t.curr, 100)}%; background: ${teamColor}; box-shadow: 0 0 18px ${teamColor}">
                                 <span class="race-icon">${t.icon}</span>
                             </div>
                         </div>
                     </div>
                 `}).join('');
 
+                // RENDER STAFF
                 staff.sort((a,b) => b.curr - a.curr);
                 document.getElementById('staff-leaderboard').innerHTML = staff.map((s, i) => {
                     const growth = s.curr - s.prev;
@@ -238,21 +247,18 @@
                     `;
                 }).join('');
 
-                const tP = teams.find(t => t.name === 'PRECIOUS') || {curr:0, icon:'🏎️'};
-                const tD = teams.find(t => t.name === 'DIVINE') || {curr:0, icon:'🏍️'};
-                const tM = teams.find(t => t.name === 'MINE') || {curr:0, icon:'🏃'};
-                const tZ = teams.find(t => t.name === 'ZOUL') || {curr:0, icon:'🚶'};
                 const topS = staff[0] || {name:'N/A', curr:0};
-
                 document.getElementById('ticker-text').innerText = 
-                    `Team Precious ${tP.icon} leading at ${tP.curr}% | Team Divine ${tD.icon} at ${tD.curr}% | Team Mine ${tM.icon} at ${tM.curr}% | Team Zoul ${tZ.icon} at ${tZ.curr}% | ${topS.name} Star Performer at ${topS.curr}% | managed by Suraj Prakash, v39.3`;
+                    `MGD Hesaraghatta Live Feed | Top Performer: ${topS.name} at ${topS.curr}% | Managed by Suraj Prakash | Version 39.5`;
 
-            } catch (e) { console.error("Sync Error", e); }
+            } catch (e) { 
+                console.error("Dashboard Update Error", e); 
+            }
         }
 
         updateDeadline();
-        setInterval(updateDashboard, 30000);
         updateDashboard();
+        setInterval(updateDashboard, 30000); // 30 second sync
     </script>
 </body>
 </html>
